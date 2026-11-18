@@ -201,6 +201,20 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
 .split .kpi .v{font-size:18px}
 .gain .row2{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:#245e4b;padding:3px 0}
 .fxc .card+.card{margin-top:18px}
+.mach{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mc{border:1.5px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.mc.new{border-color:var(--red);box-shadow:0 0 0 3px rgba(232,51,42,.08)}
+.mc h4{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.mc.new h4{color:var(--red)}
+.mc .in input{font-size:14px}
+.mc .tg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mc .tg button{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:8px 6px;font-weight:700;font-size:12.5px;cursor:pointer}
+.mc .tg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.mc .spec{font-size:12px;color:var(--muted);background:var(--soft);border-radius:9px;padding:8px 10px;line-height:1.45}
+.mc .spec b{color:var(--text);font-size:14px}
+.warn2{display:none;font-size:12.5px;color:#9a3412;background:#fff4e5;border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+.yn{display:inline-flex;gap:6px}
+@media (max-width:600px){.mach{grid-template-columns:1fr}}
 .bars{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .bars .l{font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
 .br{display:grid;grid-template-columns:92px 1fr auto;gap:10px;align-items:center;font-size:12.5px;font-weight:700;margin:6px 0}
@@ -225,6 +239,7 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
     <div class="modes" id="modes" role="tablist">
       <button data-m="both"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>Les deux</button>
       <button data-m="vsd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13l4-4"/></svg>Variation de vitesse</button>
+      <button data-m="cmp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="8" height="12" rx="1.5"/><rect x="14" y="4" width="8" height="15" rx="1.5"/><path d="M10 13h4"/></svg>Comparer 2 machines</button>
       <button data-m="heat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-5 .5 1.5 1.5 2.5 3 3-1-3 0-5.5 0-8z"/></svg>Récupération de chaleur</button>
     </div>
   </div>
@@ -233,8 +248,29 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
 <main>
 <div class="inp">
   <div class="card">
-    <h2>Le compresseur du client</h2>
-    <div class="q"><div class="qn">1</div><div class="qb">
+    <h2 id="cardT">Le compresseur du client</h2>
+    <div class="q" id="qM"><div class="qn">1</div><div class="qb">
+      <div class="ql">Quelles machines compare-t-on ?</div>
+      <div class="qh">Puissance et débit (FAD) sont sur la plaque ou la fiche technique du constructeur.</div>
+      <div class="mach">
+        <div class="mc"><h4>Machine actuelle du client</h4>
+          <div class="f"><label for="n1">Modèle</label><div class="in"><input id="n1" type="text" placeholder="Ex. marque, modèle, année"></div></div>
+          <div class="f"><label for="p1">Puissance</label><div class="in"><input id="p1" type="text" inputmode="decimal"><u>kW</u></div></div>
+          <div class="f"><label for="q1">Débit (FAD)</label><div class="in"><input id="q1" type="text" inputmode="decimal"><u>m³/min</u></div></div>
+          <div class="tg" id="t1"><button data-t="fixe">Vitesse fixe</button><button data-t="vv">Variation</button></div>
+          <div class="spec" id="s1"></div>
+        </div>
+        <div class="mc new"><h4>Machine proposée par Airflux</h4>
+          <div class="f"><label for="n2">Modèle</label><div class="in"><input id="n2" type="text" placeholder="Ex. modèle proposé"></div></div>
+          <div class="f"><label for="p2">Puissance</label><div class="in"><input id="p2" type="text" inputmode="decimal"><u>kW</u></div></div>
+          <div class="f"><label for="q2">Débit (FAD)</label><div class="in"><input id="q2" type="text" inputmode="decimal"><u>m³/min</u></div></div>
+          <div class="tg" id="t2"><button data-t="fixe">Vitesse fixe</button><button data-t="vv">Variation</button></div>
+          <div class="spec" id="s2"></div>
+        </div>
+      </div>
+      <div class="warn2" id="wQ"></div>
+    </div></div>
+    <div class="q" id="qP"><div class="qn">1</div><div class="qb">
       <div class="ql">Quelle puissance ?</div>
       <div class="qh">« Votre compresseur fait combien de kW ? » C’est écrit sur la plaque. En CV, multiplie par 0,75.</div>
       <div class="bigin"><button data-st="P:-1" aria-label="Moins">−</button><input id="P" type="text" inputmode="decimal"><u>kW</u><button data-st="P:1" aria-label="Plus">+</button></div>
@@ -246,9 +282,13 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
       <div class="chips" id="Hc"></div>
     </div></div>
     <div class="q" id="qL"><div class="qn">3</div><div class="qb">
-      <div class="ql">Sa consommation d’air varie-t-elle ?</div>
+      <div class="ql" id="lT">Sa consommation d’air varie-t-elle ?</div>
       <div class="qh">« Votre besoin en air est-il le même toute la journée, ou ça dépend des machines qui tournent ? »</div>
       <div class="prof" id="Lc"></div>
+    </div></div>
+    <div class="q" id="qX"><div class="qn">4</div><div class="qb">
+      <div class="ql">Ajouter la récupération de chaleur ?</div>
+      <div class="chips" id="Xc"></div>
     </div></div>
     <div class="q" id="qU"><div class="qn">4</div><div class="qb">
       <div class="ql">Qu’est-ce qu’on ferait de la chaleur ?</div>
@@ -269,7 +309,8 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
       <div class="fs"><h3><i></i>Variation de vitesse</h3><div class="row">
         <div class="f"><label for="u">Puissance à vide du compresseur actuel</label><div class="in"><input id="u" type="number" step="1" min="0" max="100"><u>% de la puissance</u></div><div class="h">25 à 35 % pour un compresseur à vis en charge / à vide.</div></div>
         <div class="f"><label for="dp">Gain lié à la pression stable</label><div class="in"><input id="dp" type="number" step="0.5" min="0" max="20"><u>%</u></div><div class="h">≈ 3,5 % : la variation tient la pression au plus juste (−0,5 bar).</div></div>
-        <div class="f"><label for="iv">Investissement variation de vitesse</label><div class="in"><input id="iv" type="number" step="500" min="0" placeholder="à renseigner"><u>€ HT</u></div></div>
+        <div class="f" id="fim"><label for="im">Prix de la machine proposée</label><div class="in"><input id="im" type="number" step="500" min="0" placeholder="à renseigner"><u>€ HT</u></div></div>
+        <div class="f" id="fiv"><label for="iv">Investissement variation de vitesse</label><div class="in"><input id="iv" type="number" step="500" min="0" placeholder="à renseigner"><u>€ HT</u></div></div>
       </div></div>
       <div class="fs"><h3><i></i>Récupération de chaleur</h3><div class="row">
         <div class="f"><label for="r">Chaleur récupérable</label><div class="in"><input id="r" type="number" step="1" min="0" max="96"><u>% de l’électricité</u></div><div class="h">Jusqu’à 90 % et plus sur un compresseur à vis lubrifié ; 70 à 75 % en pratique.</div></div>
@@ -286,6 +327,7 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
         <li><b>Avec variation de vitesse</b>, la puissance suit le besoin en air :<span class="fm">kWh = P × heures × (0,08 + 0,92 × L) × (1 − gain pression)</span>Économie = facture actuelle − facture avec variation.</li>
         <li><b>Récupération de chaleur</b> : une part de l’électricité consommée ressort en chaleur réutilisable.<span class="fm">Chaleur utile = kWh électriques × % récupérable × part utilisée</span><span class="fm">€ économisés = chaleur utile ÷ rendement chaudière × prix du chauffage</span></li>
         <li><b>CO₂ évité</b> = kWh électriques économisés × CO₂ électricité + kWh de chauffage évités × CO₂ chauffage.</li>
+        <li><b>Comparer 2 machines</b> : le besoin en air moyen = débit de la machine actuelle × part du temps en charge. Chaque machine est calculée sur ce même besoin, avec sa puissance, son débit et son type (vitesse fixe ou variation).<span class="fm">Puissance spécifique = puissance (kW) ÷ débit (m³/min) : plus elle est basse, plus la machine est efficace.</span></li>
         <li><b>Retour sur investissement</b> = investissement ÷ économies annuelles.</li>
       </ol>
       <div class="note">Estimation indicative, prudente. Pour un chiffre précis, Airflux peut poser un enregistreur sur le compresseur pendant une à deux semaines.</div>
@@ -358,32 +400,43 @@ const $=id=>document.getElementById(id);
 const NF=(v,d=0)=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:0}).format(v).replace(/ | /g,' ');
 const R=v=>{if(!isFinite(v))return 0;const a=Math.abs(v);if(a>=1000){const p=Math.pow(10,Math.floor(Math.log10(a))-2);return Math.round(v/p)*p}return a>=100?Math.round(v):a>=10?Math.round(v*10)/10:Math.round(v*100)/100};
 const F=v=>{const r=R(v);return NF(r,Math.abs(r)>=100?0:Math.abs(r)>=10?1:2)};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pf=s=>{const v=parseFloat(String(s).replace(/\s/g,'').replace(',','.'));return isFinite(v)?v:NaN};
 
 const PCH=['7,5','11','15','22','37','55','75','90'];
 const HCH=[['1 équipe','2000'],['2 équipes','4000'],['3 équipes','6000'],['24 h/24','8760']];
 const LCH=[['0.4','Très variable','Beaucoup d’arrêts, besoin qui change souvent','40 % en charge'],['0.6','Variable','Le besoin change selon les machines','60 % en charge'],['0.8','Assez stable','Besoin régulier avec quelques creux','80 % en charge'],['0.95','Toujours au maximum','Le compresseur ne s’arrête presque jamais','95 % en charge']];
 const UCH=[['0.4','Chauffage des ateliers','En hiver seulement','≈ 40 % de l’année'],['0.7','Chauffage + eau chaude','Hiver, et eau chaude le reste du temps','≈ 70 % de l’année'],['0.9','Eau chaude de process','Lavage, process, toute l’année','≈ 90 % de l’année'],['0','Pas d’usage','Rien à chauffer sur le site','0 %']];
-const DEF={m:'both',P:'22',H:'4000',L:'0.6',U:'0.4',e:0.15,g:0.10,ce:0.052,cg:0.227,u:30,dp:3.5,r:75,b:90,iv:'',ih:''};
+const DEF={n1:'',p1:'22',q1:'3,2',t1:'fixe',n2:'',p2:'18,5',q2:'3,4',t2:'vv',X:'0',im:'',m:'both',P:'22',H:'4000',L:'0.6',U:'0.4',e:0.15,g:0.10,ce:0.052,cg:0.227,u:30,dp:3.5,r:75,b:90,iv:'',ih:''};
 const KEY='airflux_eco_v1';
 let S=Object.assign({},DEF);
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 
+function eMach(P,H,lf,t,u,dp){return t==='fixe'?P*H*(lf+(1-lf)*u):P*H*Math.min(1,0.08+0.92*lf)*(1-dp)}
 function compute(){
-  const P=pf(S.P)||0,H=+S.H,L=+S.L,U=+S.U,u=S.u/100,dp=S.dp/100;
-  const vsd=S.m!=='heat',heat=S.m!=='vsd';
-  const kNow=P*H*(L+(1-L)*u);                       // kWh/an aujourd'hui
-  const kV=P*H*Math.min(1,0.08+0.92*L)*(1-dp);       // kWh/an avec variation
-  const sK=vsd?Math.max(0,kNow-kV):0;                // kWh électriques économisés
+  const H=+S.H,L=+S.L,U=+S.U,u=S.u/100,dp=S.dp/100,cmp=S.m==='cmp';
+  const P=cmp?(pf(S.p1)||0):(pf(S.P)||0);
+  const vsd=S.m!=='heat',heat=cmp?S.X==='1':S.m!=='vsd';
+  let kNow,kV,cm=null;
+  if(cmp){
+    const p1=pf(S.p1)||0,q1=pf(S.q1)||0,p2=pf(S.p2)||0,q2=pf(S.q2)||0;
+    const Qavg=L*q1,lf2=q2>0?Math.min(1,Qavg/q2):1;
+    kNow=eMach(p1,H,L,S.t1,u,dp);kV=eMach(p2,H,lf2,S.t2,u,dp);
+    cm={p1,q1,p2,q2,Qavg,lf2,short:q2>0&&Qavg>q2,sp1:q1>0?p1/q1:NaN,sp2:q2>0?p2/q2:NaN,k1:kNow,k2:kV};
+  }else{
+    kNow=P*H*(L+(1-L)*u);                            // kWh/an aujourd'hui
+    kV=P*H*Math.min(1,0.08+0.92*L)*(1-dp);           // kWh/an avec variation
+  }
+  const sK=vsd?(cmp?kNow-kV:Math.max(0,kNow-kV)):0;  // kWh électriques économisés
   const kAfter=kNow-sK;
   const hK=heat?kAfter*(S.r/100)*U:0;                // kWh de chaleur utile
   const fuel=hK/(S.b/100);                           // kWh de combustible évités
   const eV=sK*S.e, eH=fuel*S.g, eT=eV+eH;
   const co2=(sK*S.ce+fuel*S.cg)/1000;                // t/an
-  const inv=(vsd?pf(S.iv)||0:0)+(heat?pf(S.ih)||0:0);
+  const inv=(cmp?pf(S.im)||0:(vsd?pf(S.iv)||0:0))+(heat?pf(S.ih)||0:0);
   const roi=inv>0&&eT>0?inv/eT:null;
-  return {P,H,L,U,vsd,heat,kNow,kV,sK,kAfter,hK,fuel,eV,eH,eT,co2,inv,roi,bill:kNow*S.e};
+  return {cmp,cm,P,H,L,U,vsd,heat,kNow,kV,sK,kAfter,hK,fuel,eV,eH,eT,co2,inv,roi,bill:kNow*S.e};
 }
 const co2T=t=>t>=1?[F(t),'t/an']:[NF(Math.round(t*1000)),'kg/an'];
 const roiT=r=>r==null?'—':r<1?NF(Math.max(1,Math.round(r*12)))+' mois':NF(r,1)+' ans';
@@ -394,7 +447,16 @@ function chips(el,list,sel,cb,big){
 }
 function sync(){
   document.querySelectorAll('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===S.m));
-  $('qL').style.display=S.m==='heat'?'none':'';$('qU').style.display=S.m==='vsd'?'none':'';
+  const cmp=S.m==='cmp';
+  $('qM').style.display=cmp?'':'none';$('qP').style.display=cmp?'none':'';
+  $('qL').style.display=S.m==='heat'?'none':'';$('qX').style.display=cmp?'':'none';
+  $('qU').style.display=(S.m==='vsd'||(cmp&&S.X!=='1'))?'none':'';
+  $('cardT').textContent=cmp?'Comparer deux machines':'Le compresseur du client';
+  $('lT').textContent=cmp?'Le besoin en air du client varie-t-il ?':'Sa consommation d’air varie-t-elle ?';
+  $('fim').style.display=cmp?'':'none';$('fiv').style.display=cmp?'none':'';
+  ['n1','p1','q1','n2','p2','q2'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=S[k]});
+  ['t1','t2'].forEach(k=>$(k).querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===S[k])));
+  chips($('Xc'),[['Non','0'],['Oui, sur la machine proposée','1']],S.X,v=>{S.X=v;save();sync()});
   // numérotation visible
   let n=0;document.querySelectorAll('.inp .q').forEach(q=>{if(q.style.display!=='none')q.querySelector('.qn').textContent=++n});
   if($('P').value!==S.P)$('P').value=S.P;
@@ -402,32 +464,48 @@ function sync(){
   chips($('Hc'),HCH.map(x=>[x[0]+' · '+NF(+x[1])+' h',x[1]]),S.H,v=>{S.H=v;save();sync()});
   chips($('Lc'),LCH,S.L,v=>{S.L=v;save();sync()},true);
   chips($('Uc'),UCH,S.U,v=>{S.U=v;save();sync()},true);
-  ['e','g','ce','cg','u','dp','r','b','iv','ih'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=S[k]});
+  ['e','g','ce','cg','u','dp','r','b','iv','ih','im'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=S[k]});
   draw();
 }
 function rows(r){
   const o=[];
-  if(r.vsd)o.push(['Variation de vitesse',r.eV,'#1e3560',F(r.sK)+' kWh d’électricité']);
+  if(r.cmp)o.push(['Nouvelle machine',r.eV,'#1e3560',F(r.sK)+' kWh d’électricité']);
+  else if(r.vsd)o.push(['Variation de vitesse',r.eV,'#1e3560',F(r.sK)+' kWh d’électricité']);
   if(r.heat)o.push(['Récupération de chaleur',r.eH,'#e8332a',F(r.hK)+' kWh de chaleur réutilisée']);
   return o;
 }
 function draw(){
   const r=compute();
   $('rT').textContent=F(r.eT);$('rM').textContent=F(r.eT/12)+' €';
-  $('rP').textContent='−'+(r.kNow>0?NF(Math.round(r.sK/r.kNow*100)):0)+' %';$('rPw').style.display=r.vsd?'':'none';
+  $('rP').textContent='−'+(r.kNow>0?NF(Math.round(r.sK/r.kNow*100)):0)+' %';$('rPw').style.display=r.vsd&&r.sK>0?'':'none';
   $('gRows').innerHTML=rows(r).map(x=>`<div class="row2"><span>${x[0]}</span><span>${F(x[1])} €/an</span></div>`).join('');
   $('kF').textContent=F(r.bill);$('kFk').textContent=F(r.kNow);
-  $('kE').textContent=F(r.sK+r.fuel);$('kEs').textContent=r.vsd&&r.heat?F(r.sK)+' élec. + '+F(r.fuel)+' chauffage':r.vsd?'d’électricité':'de chauffage';
+  $('kE').textContent=F(r.sK+r.fuel);$('kEs').textContent=r.cmp?(r.heat?F(r.sK)+' élec. + '+F(r.fuel)+' chauffage':'d’électricité'):r.vsd&&r.heat?F(r.sK)+' élec. + '+F(r.fuel)+' chauffage':r.vsd?'d’électricité':'de chauffage';
   const [cv,cu]=co2T(r.co2);$('kC').textContent=cv;$('kCu').textContent=cu;
   $('kR').innerHTML=r.roi==null?'—':roiT(r.roi);$('kRs').textContent=r.roi==null?'Renseigne l’investissement':'pour '+F(r.inv)+' € HT';
+  if(r.cmp){
+    const c=r.cm,sp=v=>isFinite(v)?NF(v,2):'—';
+    const lab=v=>!isFinite(v)?'':v<=6?'très efficace':v<=7?'efficace':v<=8?'moyen':'peu efficace';
+    $('s1').innerHTML=`Puissance spécifique : <b>${sp(c.sp1)}</b> kW par m³/min<br>${lab(c.sp1)}`;
+    $('s2').innerHTML=`Puissance spécifique : <b>${sp(c.sp2)}</b> kW par m³/min<br>${lab(c.sp2)} · en charge ${NF(Math.round(c.lf2*100))} % du temps`;
+    $('wQ').style.display=c.short?'block':'none';
+    $('wQ').textContent=c.short?`Attention : le besoin moyen du client (${NF(c.Qavg,2)} m³/min) dépasse le débit de la machine proposée (${NF(c.q2,2)} m³/min). Il faut une machine plus grosse.`:'';
+    const m2=Math.max(1,c.k1,c.k2);
+    $('bars').innerHTML='<div class="l">Consommation électrique par an</div>'+[['Actuelle',c.k1,'#64708a'],['Proposée',c.k2,'#e8332a']].map(x=>`<div class="br"><span>${x[0]}</span><div class="t"><i style="width:${x[1]/m2*100}%;background:${x[2]}"></i></div><span class="n">${F(x[1])} kWh</span></div>`).join('');
+    if(r.sK<0)$('eqT').innerHTML=`La machine proposée consommerait <b>${F(-r.sK)} kWh de plus</b> par an : vérifie le débit et la puissance saisis.`;
+    else $('eqT').innerHTML=`Sur <b>5 ans</b>, c’est <b>${F(r.eT*5)} €</b> économisés${r.roi!=null&&r.roi<5?', investissement déjà remboursé':''}.`;
+    return;
+  }
   const mx=Math.max(1,...rows(r).map(x=>x[1]));
   $('bars').innerHTML='<div class="l">Économies par levier</div>'+rows(r).map(x=>`<div class="br"><span>${x[0].replace('Variation de vitesse','Variation').replace('Récupération de chaleur','Chaleur')}</span><div class="t"><i style="width:${x[1]/mx*100}%;background:${x[2]}"></i></div><span class="n">${F(x[1])} €</span></div>`).join('');
   $('eqT').innerHTML=r.eT>0?`Sur <b>5 ans</b>, c’est <b>${F(r.eT*5)} €</b> économisés${r.roi!=null&&r.roi<5?', investissement déjà remboursé':''}.`:'Choisis au moins un usage pour la chaleur, ou la variation de vitesse.';
   if(S.m!=='vsd'&&+S.U===0&&S.m==='heat')$('eqT').textContent='Sans usage de la chaleur sur le site, la récupération ne rapporte rien.';
 }
 function hypRows(r){
-  const o=[['Puissance du compresseur',NF(r.P,1)+' kW'],['Heures de fonctionnement',NF(r.H)+' h/an'],['Prix de l’électricité',NF(S.e,3)+' €/kWh']];
-  if(r.vsd){o.push(['Part du temps en charge',NF(r.L*100)+' %'],['Puissance à vide actuelle',NF(S.u)+' %'],['Gain lié à la pression stable',NF(S.dp,1)+' %'])}
+  const ty=t=>t==='fixe'?'vitesse fixe':'variation de vitesse';
+  const o=r.cmp?[['Machine actuelle'+(S.n1?' ('+S.n1+')':''),NF(r.cm.p1,1)+' kW · '+NF(r.cm.q1,2)+' m³/min · '+ty(S.t1)],['Machine proposée'+(S.n2?' ('+S.n2+')':''),NF(r.cm.p2,1)+' kW · '+NF(r.cm.q2,2)+' m³/min · '+ty(S.t2)],['Puissance spécifique',NF(r.cm.sp1,2)+' → '+NF(r.cm.sp2,2)+' kW par m³/min'],['Besoin en air moyen',NF(r.cm.Qavg,2)+' m³/min'],['Heures de fonctionnement',NF(r.H)+' h/an'],['Prix de l’électricité',NF(S.e,3)+' €/kWh']]:[['Puissance du compresseur',NF(r.P,1)+' kW'],['Heures de fonctionnement',NF(r.H)+' h/an'],['Prix de l’électricité',NF(S.e,3)+' €/kWh']];
+  if(r.cmp){o.push(['Puissance à vide (vitesse fixe)',NF(S.u)+' %'])}
+  else if(r.vsd){o.push(['Part du temps en charge',NF(r.L*100)+' %'],['Puissance à vide actuelle',NF(S.u)+' %'],['Gain lié à la pression stable',NF(S.dp,1)+' %'])}
   if(r.heat){o.push(['Usage de la chaleur',(UCH.find(x=>x[0]===S.U)||['','—'])[1]],['Chaleur récupérable',NF(S.r)+' % de l’électricité'],['Prix du chauffage remplacé',NF(S.g,3)+' €/kWh'],['Rendement chaudière',NF(S.b)+' %'])}
   if(r.inv>0)o.push(['Investissement',F(r.inv)+' € HT']);
   return o;
@@ -435,7 +513,7 @@ function hypRows(r){
 const today=()=>new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
 function openRecap(){
   const r=compute();$('sD').textContent=today();
-  $('sW').innerHTML=`Compresseur de <b>${NF(r.P,1)} kW</b> · <b>${NF(r.H)} h</b> par an`;
+  $('sW').innerHTML=r.cmp?`Comparaison : <b>${esc(S.n1||'machine actuelle')}</b> (${NF(r.cm.p1,1)} kW) → <b>${esc(S.n2||'machine proposée')}</b> (${NF(r.cm.p2,1)} kW) · <b>${NF(r.H)} h</b> par an`:`Compresseur de <b>${NF(r.P,1)} kW</b> · <b>${NF(r.H)} h</b> par an`;
   $('sT').textContent=F(r.eT);$('sM').textContent=F(r.eT/12)+' €';
   $('sRows').innerHTML=rows(r).map(x=>`<div class="row2"><span>${x[0]}</span><span>${F(x[1])} €/an</span></div>`).join('');
   $('sF').textContent=F(r.bill);$('sE').textContent=F(r.sK+r.fuel);
@@ -446,7 +524,7 @@ function openRecap(){
 function recapText(){
   const r=compute();const [cv,cu]=co2T(r.co2);
   const L=['AIRFLUX · Estimation des économies d’énergie sur l’air comprimé',today(),'',
-   'Compresseur de '+NF(r.P,1)+' kW, '+NF(r.H)+' h par an',
+   r.cmp?'Comparaison : '+(S.n1||'machine actuelle')+' ('+NF(r.cm.p1,1)+' kW) → '+(S.n2||'machine proposée')+' ('+NF(r.cm.p2,1)+' kW), '+NF(r.H)+' h par an':'Compresseur de '+NF(r.P,1)+' kW, '+NF(r.H)+' h par an',
    'Facture électrique actuelle du compresseur : '+F(r.bill)+' €/an ('+F(r.kNow)+' kWh)','',
    'Économies estimées : '+F(r.eT)+' €/an (soit '+F(r.eT/12)+' € par mois)'];
   rows(r).forEach(x=>L.push('- '+x[0]+' : '+F(x[1])+' €/an ('+x[3]+')'));
@@ -463,8 +541,9 @@ document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>{S.m=b.datas
 $('P').oninput=()=>{S.P=$('P').value;save();document.querySelectorAll('#Pc .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===S.P));draw()};
 document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const v=pf(S.P)||0,st=v>=50?5:v>=10?1:0.5;S.P=String(Math.max(0,Math.round((v+st*+b.dataset.st.split(':')[1])*10)/10)).replace('.',',');save();sync()});
 ['e','g','ce','cg','u','dp','r','b'].forEach(k=>$(k).oninput=()=>{const v=pf($(k).value);if(isFinite(v)){S[k]=v;save();draw()}});
-['iv','ih'].forEach(k=>$(k).oninput=()=>{S[k]=$(k).value;save();draw()});
-$('reset').onclick=()=>{['e','g','ce','cg','u','dp','r','b','iv','ih'].forEach(k=>S[k]=DEF[k]);save();sync();toast('Valeurs par défaut rétablies')};
+['iv','ih','im','n1','p1','q1','n2','p2','q2'].forEach(k=>$(k).oninput=()=>{S[k]=$(k).value;save();draw()});
+['t1','t2'].forEach(k=>$(k).querySelectorAll('button').forEach(b=>b.onclick=()=>{S[k]=b.dataset.t;save();sync()}));
+$('reset').onclick=()=>{['e','g','ce','cg','u','dp','r','b','iv','ih','im'].forEach(k=>S[k]=DEF[k]);save();sync();toast('Valeurs par défaut rétablies')};
 $('bR').onclick=openRecap;$('bC').onclick=copy;$('rcC').onclick=copy;
 $('rcX').onclick=()=>{$('rc').hidden=true;document.body.style.overflow=''};
 $('rcP').onclick=()=>window.print();
