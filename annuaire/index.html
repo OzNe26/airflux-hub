@@ -293,7 +293,7 @@ main{display:block!important}
       <a class="back" id="backHub" href="../"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Hub</span></a>
     </div>
     <h1>Annuaire de cartes de visite</h1>
-    <p class="sub">Les cartes que tu reçois : prends-les en photo, les coordonnées se remplissent toutes seules, et retrouve-les en un clic.</p>
+    <p class="sub">Les cartes de visite reçues par l’équipe : prends-les en photo, les coordonnées se remplissent toutes seules, et tout le monde les retrouve en un clic.</p>
     
   </div>
 </header>
@@ -399,6 +399,7 @@ const TY={pr:['Prospect','#7fa33e'],cl:['Client','#e8708c'],ac:['Ancien client',
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const who=e=>{e=String(e||'');const l=e.split('@')[0].split(/[._-]/).filter(Boolean);return l.length?l.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' '):e};
 const fmtD=s=>{if(!s)return'';const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
 OURS.forEach(p=>{p.k=norm(p.n+' '+(p.v||'')+' '+(p.cp||''))});
 
@@ -411,20 +412,21 @@ const dbPut=o=>tx('readwrite',s=>{s.put(o)});
 const dbDel=id=>tx('readwrite',s=>{s.delete(id)});
 
 /* ---------- Liste ---------- */
-let F={q:'',ty:'',sort:'rec'};
+let F={q:'',ty:'',sort:'rec',mine:false};
 function fullName(c){return [c.p,c.n].filter(Boolean).join(' ')}
-function matches(c){if(F.ty&&c.ty!==F.ty)return false;if(!F.q)return true;const k=norm([c.p,c.n,c.fn,c.so,c.v,c.cp,c.e,c.no,c.ou].join(' '))+' '+[c.m,c.t].join(' ').replace(/\D/g,'');return norm(F.q).split(' ').every(w=>k.includes(w)||k.includes(w.replace(/\D/g,'')||'§'))}
+function matches(c){if(F.ty&&c.ty!==F.ty)return false;if(F.mine&&SY.ses&&c.par&&c.par!==SY.ses.email)return false;if(!F.q)return true;const k=norm([c.p,c.n,c.fn,c.so,c.v,c.cp,c.e,c.no,c.ou].join(' '))+' '+[c.m,c.t].join(' ').replace(/\D/g,'');return norm(F.q).split(' ').every(w=>k.includes(w)||k.includes(w.replace(/\D/g,'')||'§'))}
 function drawFl(){const cnt=t=>L.filter(c=>!t||c.ty===t).length;
   $('fl').innerHTML=`<button class="chip${F.ty===''?' on':''}" data-t="">Tous · ${cnt('')}</button>`+Object.entries(TY).filter(([k])=>cnt(k)).map(([k,[l]])=>`<button class="chip${F.ty===k?' on':''}" data-t="${k}">${l} · ${cnt(k)}</button>`).join('')+
+  (SY.ses&&L.some(c=>c.par&&c.par!==SY.ses.email)?`<button class="chip${F.mine?' on':''}" id="fMine">Mes cartes</button>`:'')+
   `<select id="sort"><option value="rec">Plus récentes</option><option value="nom">Par nom</option><option value="so">Par société</option></select>`;
-  $('sort').value=F.sort;$('sort').onchange=e=>{F.sort=e.target.value;drawGrid()};
+  $('sort').value=F.sort;if($('fMine'))$('fMine').onclick=()=>{F.mine=!F.mine;drawFl();drawGrid()};$('sort').onchange=e=>{F.sort=e.target.value;drawGrid()};
   document.querySelectorAll('#fl [data-t]').forEach(b=>b.onclick=()=>{F.ty=b.dataset.t;drawFl();drawGrid()})}
 function drawGrid(){
   const R=L.filter(matches).sort((a,b)=>F.sort==='nom'?(a.n||a.p||'').localeCompare(b.n||b.p||'','fr'):F.sort==='so'?(a.so||'~').localeCompare(b.so||'~','fr'):(b.d||b.cr||'').localeCompare(a.d||a.cr||'')||(b.cr||'').localeCompare(a.cr||''));
   if(!L.length){$('grid').innerHTML=`<div class="empty2" style="grid-column:1/-1"><b>Ton annuaire est vide</b>Prends une carte en photo avec « Ajouter une carte », ou choisis-en<br>une ou plusieurs déjà prises avec « Depuis la galerie » :<br>la lecture automatique remplit les coordonnées.</div>`;return}
   if(!R.length){$('grid').innerHTML=`<div class="empty2" style="grid-column:1/-1"><b>Aucune carte trouvée</b>Essaie un autre mot ou enlève le filtre.</div>`;return}
   $('grid').innerHTML=R.map(c=>{const t=TY[c.ty]||TY.au,ini=((c.p||'')[0]||'')+((c.n||'')[0]||'')||'?';
-    return `<button class="bc" data-id="${c.id}"><div class="ph" style="${c.i1?`background-image:url(${c.i1})`:''}">${c.i1?'':esc(ini.toUpperCase())}<span class="ty" style="background:${t[1]}">${t[0]}</span></div><div class="bd"><b>${esc(fullName(c)||'Sans nom')}</b>${c.fn?`<div class="fn">${esc(c.fn)}</div>`:''}${c.so?`<div class="so">${esc(c.so)}${c.v?` <small>· ${esc(c.v)}</small>`:''}</div>`:''}</div></button>`}).join('');
+    return `<button class="bc" data-id="${c.id}"><div class="ph" style="${c.i1?`background-image:url(${c.i1})`:''}">${c.i1?'':esc(ini.toUpperCase())}<span class="ty" style="background:${t[1]}">${t[0]}</span></div><div class="bd"><b>${esc(fullName(c)||'Sans nom')}</b>${c.fn?`<div class="fn">${esc(c.fn)}</div>`:''}${c.so?`<div class="so">${esc(c.so)}${c.v?` <small>· ${esc(c.v)}</small>`:''}</div>`:''}${c.par&&SY.ses&&c.par!==SY.ses.email?`<div class="fn" style="margin-top:6px">Ajoutée par ${esc(who(c.par))}</div>`:''}</div></button>`}).join('');
   document.querySelectorAll('.bc').forEach(b=>b.onclick=()=>view(b.dataset.id));
 }
 $('q').oninput=e=>{F.q=e.target.value;drawGrid()};
@@ -529,11 +531,11 @@ $('bGal').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!
     try{const c={id:uid(),ty:'pr',d:iso(new Date()),i1:await shrink(fs[i])};
       try{const w=await worker();const r=await w.recognize(c.i1);c.raw=r.data.text;Object.assign(c,Object.fromEntries(Object.entries(parse(c.raw)).filter(([,v])=>v)))}catch(_){}
       const o=OURS.find(p=>norm(p.n)===norm(c.so));if(o){c.ref=o.ref||'';if(['pr','cl','ac'].includes(o.s))c.ty=o.s}
-      c.cr=c.up=new Date().toISOString();await dbPut(c);mark(c.id);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
+      c.cr=c.up=new Date().toISOString();if(SY.ses&&SY.ses.email)c.par=c.mod=SY.ses.email;await dbPut(c);mark(c.id);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
   syncSoon();toast(ok+' carte'+(ok>1?'s':'')+' ajoutée'+(ok>1?'s':'')+', vérifie-les');};
 $('eOk').onclick=async()=>{if(!fullName(E).trim()&&!(E.so||'').trim()){toast('Indique au moins un nom ou une société');return}
   const o=soLink();if(o&&!E.ref)E.ref=o.ref||'';
-  E.up=new Date().toISOString();if(!E.cr)E.cr=E.up;
+  E.up=new Date().toISOString();if(!E.cr)E.cr=E.up;const me=SY.ses&&SY.ses.email;if(me){if(!E.par)E.par=me;E.mod=me}
   try{await dbPut(E);mark(E.id);const i=L.findIndex(x=>x.id===E.id);if(i>=0)L[i]=E;else L.push(E);closeM('mdE');drawFl();drawGrid();syncSoon();toast('Carte enregistrée');if(fromV)view(E.id)}
   catch(e){toast('Enregistrement impossible (espace plein ?)')}};
 let delArm=0;
@@ -561,7 +563,7 @@ function view(id){const c=L.find(x=>x.id===id);if(!c)return;const t=TY[c.ty]||TY
    ${o?`<div class="lnk"><span class="dot" style="background:${(TY[o.s]||TY.au)[1]}"></span> Dans nos fichiers : ${esc((TY[o.s]||['?'])[0])}${o.ref?' · '+esc(o.ref):''}${o.co?' · suivi par '+esc(o.co):''}</div>`:''}
    <div class="kv">${rows||'<div>Aucune coordonnée</div>'}</div>
    ${c.no?`<div class="nt">${esc(c.no)}</div>`:''}
-   <div class="meta">${c.d||c.ou?'Rencontré'+(c.d?' le '+fmtD(c.d):'')+(c.ou?' · '+esc(c.ou):''):''}</div>
+   <div class="meta">${c.d||c.ou?'Rencontré'+(c.d?' le '+fmtD(c.d):'')+(c.ou?' · '+esc(c.ou):''):''}${c.par?`<br>Ajoutée par ${esc(who(c.par))}${c.mod&&c.mod!==c.par?` · modifiée par ${esc(who(c.mod))}`:''}`:''}</div>
    <div class="acts3">
     <button class="btn n" id="vEd">Modifier</button>
     <button class="btn g" id="vVcf">Ajouter à mes contacts</button>
@@ -623,20 +625,20 @@ async function sync(){if(!sbOn()||!SY.ses)return;if(busy){again=true;return}busy
         else if(!ex||((ex.up||'')<r.up&&!SY.pend.includes(r.id))){const c=Object.assign({},r.data,{id:r.id,i1:r.i1||null,i2:r.i2||null,up:r.up});await dbPut(c);if(ex)L[L.indexOf(ex)]=c;else L.push(c);ch++}
         SY.last=r.srv}
       sSave()}
-    SY.at=new Date().toISOString();sSave();if(ch){drawFl();drawGrid()}
+    SY.at=new Date().toISOString();sSave();if(ch){drawFl();drawGrid()}else drawFl();
   }catch(e){SY.err=navigator.onLine===false?'Hors ligne, la synchro reprendra toute seule':(SY.ses?'Synchro impossible pour le moment':'');console.log(e)}
   busy=false;drawSync();if(again){again=false;sync()}}
 let st=null;function syncSoon(){clearTimeout(st);st=setTimeout(sync,800)}
 function ago(s){if(!s)return'';const m=Math.round((Date.now()-new Date(s))/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+fmtD(s.slice(0,10))}
 function drawSync(run){const el=$('sync');
   if(!sbOn()){el.innerHTML=`<span class="led" style="background:#cbd5e1"></span><div class="st2"><b>Pas encore activée</b><small>Pour l’instant, chaque appareil garde ses propres cartes. Utilise la sauvegarde ci-dessous pour les transférer.</small></div>`;return}
-  if(!SY.ses){el.innerHTML=`<span class="led" style="background:#f59e0b"></span><div class="st2"><b>Non connecté sur cet appareil</b><small>Connecte-toi une fois pour retrouver tes cartes sur ton téléphone et ton ordi.</small></div><button class="btn p" id="sIn">Se connecter</button>`;$('sIn').onclick=()=>{$('lS').textContent='';openM('mdL');$('lE').focus()};return}
+  if(!SY.ses){el.innerHTML=`<span class="led" style="background:#f59e0b"></span><div class="st2"><b>Non connecté sur cet appareil</b><small>Connecte-toi une fois pour partager l’annuaire avec l’équipe et le retrouver sur ton téléphone et ton ordi.</small></div><button class="btn p" id="sIn">Se connecter</button>`;$('sIn').onclick=()=>{$('lS').textContent='';openM('mdL');$('lE').focus()};return}
   const n=SY.pend.length+SY.dels.length;
   el.innerHTML=`<span class="led" style="background:${SY.err?'#ef4444':n||run?'#f59e0b':'#22c55e'}"></span><div class="st2"><b>${run?'Synchronisation…':SY.err?esc(SY.err):n?n+' modification'+(n>1?'s':'')+' à envoyer':'Synchronisé'}</b><small>${esc(SY.ses.email||'')}${SY.at?' · dernière synchro '+ago(SY.at):''}</small></div><button class="btn g" id="sNow">Synchroniser</button><button class="btn g" id="sOut">Se déconnecter</button>`;
   $('sNow').onclick=sync;$('sOut').onclick=()=>{if(Date.now()-(drawSync.o||0)>3000){drawSync.o=Date.now();toast('Clique encore une fois pour te déconnecter');return}SY.ses=null;sSave();drawSync();toast('Déconnecté. Les cartes restent sur cet appareil.')}}
 $('lOk').onclick=async()=>{const em=$('lE').value.trim(),pw=$('lP').value;if(!em||!pw){$('lS').textContent='Indique ton e-mail et ton mot de passe';return}
   $('lOk').disabled=true;$('lS').textContent='Connexion…';
-  try{await auth({email:em,password:pw},'password');$('lP').value='';SY.last='';L.forEach(c=>{if(!SY.pend.includes(c.id))SY.pend.push(c.id)});sSave();closeM('mdL');toast('Connecté, synchronisation en cours');sync()}
+  try{await auth({email:em,password:pw},'password');$('lP').value='';SY.last='';for(const c of L){if(!c.par){c.par=SY.ses.email;await dbPut(c)}if(!SY.pend.includes(c.id))SY.pend.push(c.id)}sSave();closeM('mdL');toast('Connecté, synchronisation en cours');sync()}
   catch(e){$('lS').textContent=e.status===400?'E-mail ou mot de passe incorrect':'Connexion impossible pour le moment'}
   $('lOk').disabled=false};
 $('lP').addEventListener('keydown',e=>{if(e.key==='Enter')$('lOk').click()});
