@@ -424,16 +424,18 @@ async function ocr(){if(!E.i1&&!E.i2){toast('Prends d’abord la carte en photo'
   b.disabled=false}
 $('bOcr').onclick=ocr;
 $('rawT').onclick=()=>$('raw').classList.toggle('on');
-const JOBS=/\b(responsable|resp\.?|directeur|directrice|direction|chef|cheffe|technicien|technicienne|ing[ée]nieur|g[ée]rant|g[ée]rante|acheteur|acheteuse|achats?|manager|maintenance|commercial|commerciale|assistant|assistante|pr[ée]sident|pdg|dg|ceo|coo|cto|daf|charg[ée]e?|conducteur|conductrice|service|production|qualit[ée]|travaux|m[ée]thodes|logistique|atelier|usine|site|exploitation|account|sales|purchasing|buyer|engineer|supervisor|planificateur|agent|associ[ée]|fondateur|fondatrice|business)\b/i;
+const JOBS=/\b(coordinateur|coordinatrice|coordination|projets?|chargée?|gestionnaire|animateur|animatrice|contrôleur|superviseur|expert|consultant|consultante|opérateur|team leader|head|officer|directeur|responsable|resp\.?|directeur|directrice|direction|chef|cheffe|technicien|technicienne|ing[ée]nieur|g[ée]rant|g[ée]rante|acheteur|acheteuse|achats?|manager|maintenance|commercial|commerciale|assistant|assistante|pr[ée]sident|pdg|dg|ceo|coo|cto|daf|charg[ée]e?|conducteur|conductrice|service|production|qualit[ée]|travaux|m[ée]thodes|logistique|atelier|usine|site|exploitation|account|sales|purchasing|buyer|engineer|supervisor|planificateur|agent|associ[ée]|fondateur|fondatrice|business)\b/i;
 const FORMS=/\b(sas|sarl|sa|sasu|eurl|sci|gmbh|ltd|inc|group|groupe|industrie|industries|france|holding)\b/i;
 function cleanPh(s){let d=s.replace(/[^\d+]/g,'');if(d.startsWith('+33'))d='0'+d.slice(3);if(d.startsWith('0033'))d='0'+d.slice(4);d=d.replace(/^0(0)/,'0');if(!/^0\d{9}$/.test(d))return'';return d.replace(/(\d{2})(?=\d)/g,'$1 ').trim()}
+const capW=s=>s.toLowerCase().replace(/(^|[\s\-'’])([a-zà-ÿ])/g,(m,a,b)=>a+b.toUpperCase());
+const capCity=s=>capW(s).replace(/-(En|Sur|Le|La|Les|Lès|De|Du|Des|Aux|Au|Sous|Et)(?=-)/g,(m,w)=>'-'+w.toLowerCase());
 function parse(txt){
   const lines=txt.split(/\n/).map(l=>l.replace(/[|_~«»•]+/g,' ').replace(/\s+/g,' ').trim()).filter(l=>l.length>1);
   const all=lines.join('\n'),g={};const used=new Set();
   const em=all.match(/[A-Za-z0-9._%+-]+\s?@\s?[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);if(em){g.e=em[0].replace(/\s/g,'').toLowerCase()}
   const ws=all.match(/\b(?:https?:\/\/)?(?:www\.)[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[a-z]{2,}\b/i);if(ws)g.w=ws[0].toLowerCase();
   lines.forEach((l,i)=>{const re=/(?:\+\s?33\s?\(?0?\)?|0)\s?[1-9](?:[\s.\-\/]?\d{2}){4}/g;let m;while((m=re.exec(l))){const p=cleanPh(m[0]);if(!p)continue;used.add(i);const fax=/fax|f\s?:|télécopie/i.test(l.slice(Math.max(0,m.index-8),m.index));if(fax)continue;if(/^0[67]/.test(p)){if(!g.m)g.m=p}else if(!g.t)g.t=p}});
-  lines.forEach((l,i)=>{const m=l.match(/\b(\d{2}\s?\d{3})\s+([A-Za-zÀ-ÿ'’\- ]{2,40})(?:\s+cedex.*)?$/i);if(m&&!g.cp&&!/@|www/.test(l)){g.cp=m[1].replace(/\s/g,'');g.v=m[2].replace(/\bcedex.*$/i,'').trim().replace(/\b\w/g,c=>c.toUpperCase());used.add(i);
+  lines.forEach((l,i)=>{const m=l.match(/\b(\d{2}\s?\d{3})\s+([A-Za-zÀ-ÿ'’\- ]{2,40})(?:\s+cedex.*)?$/i);if(m&&!g.cp&&!/@|www/.test(l)){g.cp=m[1].replace(/\s/g,'');g.v=capCity(m[2].replace(/\bcedex.*$/i,'').trim());used.add(i);
     const before=l.slice(0,m.index).replace(/[,\-–]\s*$/,'').trim();
     if(before.length>4)g.ad=before;else if(i>0&&/\d|rue|avenue|av\.|bd|boulevard|chemin|route|impasse|all[ée]e|place|zi|za|zac|parc|quai|cours|lot/i.test(lines[i-1])){g.ad=lines[i-1];used.add(i-1)}}});
   if(g.e)lines.forEach((l,i)=>{if(l.toLowerCase().replace(/\s/g,'').includes(g.e))used.add(i)});
@@ -444,7 +446,7 @@ function parse(txt){
   let so='';
   if(dom&&!free.test(dom)){const nd=norm(dom).replace(/ /g,'');const hit=OURS.find(p=>norm(p.n).replace(/ /g,'')===nd)||OURS.find(p=>nd.length>3&&norm(p.n).replace(/ /g,'').startsWith(nd));
     const ln=lines.find((l,i)=>!used.has(i)&&norm(l).replace(/ /g,'').includes(nd)&&!/@/.test(l));
-    so=hit?hit.n:ln&&ln.length<40?ln:dom.charAt(0).toUpperCase()+dom.slice(1)}
+    const core=dom.replace(/[-_]?(group|groupe|france|industries?|sas|sarl|fr)$/i,'');so=hit?hit.n:ln&&ln.length<40?ln:core.charAt(0).toUpperCase()+core.slice(1)}
   if(!so){const ln=lines.find((l,i)=>!used.has(i)&&FORMS.test(l)&&l.length<45);if(ln)so=ln}
   if(!so){const k=lines.map(l=>norm(l));const hit=OURS.find(p=>p.n.length>3&&k.some(x=>x.includes(norm(p.n))));if(hit)so=hit.n}
   if(so){g.so=so;lines.forEach((l,i)=>{if(norm(l)===norm(so))used.add(i)})}
@@ -453,8 +455,14 @@ function parse(txt){
   if(fi>=0){g.fn=lines[fi];used.add(fi)}
   // nom : ligne courte de 2-3 mots sans chiffres, de préférence juste avant la fonction
   const isName=l=>/^[A-Za-zÀ-ÿ'’\-]+(?:\s+[A-Za-zÀ-ÿ'’\-]+){1,2}$/.test(l)&&!JOBS.test(l)&&!FORMS.test(l)&&l.length<36;
-  let ni=-1;if(fi>0&&!used.has(fi-1)&&isName(lines[fi-1]))ni=fi-1;else if(fi>=0&&fi+1<lines.length&&!used.has(fi+1)&&isName(lines[fi+1]))ni=fi+1;
-  if(ni<0)ni=lines.findIndex((l,i)=>!used.has(i)&&isName(l)&&(!so||norm(l)!==norm(so)));
+  const loc=g.e?norm(g.e.split('@')[0]).split(' ').filter(x=>x.length>1):[];
+  let ni=-1,best=0;
+  lines.forEach((l,i)=>{if(used.has(i)||!isName(l)||(so&&norm(l)===norm(so)))return;const w=l.split(' ');let sc=1;
+    if(w.every(x=>x.replace(/[^A-Za-zÀ-ÿ]/g,'').length>=2))sc+=1;else sc-=2;
+    if(w.some(x=>x.length>=3&&x===x.toUpperCase()&&/[A-Z]/.test(x))&&w.some(x=>/^[A-ZÀ-Ý][a-zà-ÿ]/.test(x)))sc+=2;
+    if(fi>=0&&Math.abs(i-fi)===1)sc+=2;
+    const nl=norm(l).split(' ');sc+=3*loc.filter(x=>nl.some(y=>y===x||(x.length>2&&y.startsWith(x)))).length;
+    if(sc>best){best=sc;ni=i}});
   const cap=s=>s.toLowerCase().replace(/(^|[\s\-'’])([a-zà-ÿ])/g,(m,a,b)=>a+b.toUpperCase());
   if(ni>=0){used.add(ni);const w=lines[ni].split(' ');const up=w.findIndex(x=>x.length>1&&x===x.toUpperCase()&&/[A-Z]/.test(x));
     if(up===0){g.n=cap(w[0]);g.p=cap(w.slice(1).join(' '))}
