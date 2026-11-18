@@ -67,7 +67,7 @@ textarea.inp{height:auto;min-height:64px;padding:10px 12px;resize:vertical;line-
 .civ{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px;height:42px}
 .civ button{border:0;background:transparent;font-weight:700;font-size:13px;padding:0 12px;border-radius:8px;cursor:pointer;color:var(--muted)}
 .civ button.on{background:var(--navy);color:#fff}
-#var{height:auto;flex-wrap:wrap}#var button{height:36px}
+#var,.seg{height:auto;flex-wrap:wrap}#var button,.seg button{height:36px}.ctab .seg{display:flex;width:fit-content;max-width:100%;margin-bottom:6px}
 .mail{padding:0}
 .mh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--soft)}
 .mh .lbl{margin:0;flex:none}
@@ -124,7 +124,7 @@ async function copyText(t,msg){
 })();
 
 const SIG='Enzo Drouot\nAirflux\n{tel}';
-const CR='Je vous propose un court échange téléphonique le {creneau1} ou le {creneau2}. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.';
+const CR='{cta}';
 const END='\n\nBien cordialement,\n\n'+SIG;
 const T=[
 {id:'rdv',n:'Confirmation de rendez-vous',d:'Après un appel réussi : 3 situations',f:[],v:[
@@ -150,10 +150,10 @@ const T=[
   b:'{bonjour}\n\nComme convenu lors de notre échange, vous trouverez ci-joint notre documentation concernant {sujet}.\n\nAirflux accompagne les entreprises sur l’ensemble de leurs besoins en air comprimé : installation, maintenance et réseaux d’air.\n\nComme convenu, je me permettrai de vous rappeler {rappel} pour recueillir votre avis et répondre à vos questions.'+END}
 ]},
 {id:'relance',n:'Relance après appel',d:'Pas de réponse : 1re, 2e, dernière',f:[],v:[
- {id:'r1',n:'1re relance',f:['dateAppel','creneau1','creneau2'],
+ {id:'r1',n:'1re relance',f:['dateAppel','cta'],
   s:'Suite à notre échange du {dateAppel}',
   b:'{bonjour}\n\nJe me permets de revenir vers vous suite à notre échange du {dateAppel} au sujet de vos installations d’air comprimé.\n\nAvez-vous eu l’occasion d’y réfléchir ? Je serais ravi de convenir d’un rendez-vous, sur site ou par téléphone, pour faire le point sur vos besoins.\n\n'+CR+END},
- {id:'r2',n:'2e relance',f:['dateAppel','creneau1','creneau2'],
+ {id:'r2',n:'2e relance',f:['dateAppel','cta'],
   s:'Re : Suite à notre échange du {dateAppel}',
   b:'{bonjour}\n\nJe reviens vers vous au sujet de mon précédent message, resté sans réponse. Je sais que vos journées sont chargées.\n\nUn simple échange de 10 minutes suffirait pour voir si Airflux peut vous être utile, que ce soit pour l’entretien de vos compresseurs, un projet à venir ou un simple contrôle.\n\n'+CR+END},
  {id:'r3',n:'Dernière relance',f:['dateAppel'],
@@ -172,44 +172,44 @@ const T=[
   b:'{bonjour}\n\nMerci pour le temps que vous m’avez accordé lors de notre rendez-vous du {dateRdv}.\n\nJ’ai bien compris que vous n’aviez pas de besoin immédiat. Comme convenu, je me permettrai de reprendre contact avec vous {quandRappel} pour faire le point.\n\nD’ici là, en cas de panne ou de question sur vos installations, n’hésitez pas à me contacter au {tel}.'+END}
 ]},
 {id:'prospection',n:'Prospection par e-mail',d:'Premier contact : 3 angles',f:[],v:[
- {id:'gen',n:'Présentation générale',f:['creneau1','creneau2'],
+ {id:'gen',n:'Présentation générale',f:['cta'],
   s:'Airflux – vos installations d’air comprimé',
-  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé depuis plus de 40 ans : installation, maintenance, dépannage et réseaux d’air.\n\nNous accompagnons de nombreuses entreprises sur l’entretien de leurs compresseurs, la réduction de leurs fuites et de leur consommation d’énergie, avec des techniciens proches de chez vous.\n\nPourriez-vous m’indiquer si vous êtes la bonne personne pour ces sujets ? Si c’est le cas, je vous propose un court échange de 10 minutes le {creneau1} ou le {creneau2}, pour mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\nSinon, je vous serais reconnaissant de me transmettre le contact de la personne en charge.'+END},
- {id:'maint',n:'Maintenance',f:['creneau1','creneau2'],
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé depuis plus de 40 ans : installation, maintenance, dépannage et réseaux d’air.\n\nNous accompagnons de nombreuses entreprises sur l’entretien de leurs compresseurs, la réduction de leurs fuites et de leur consommation d’énergie, avec des techniciens proches de chez vous.\n\nÊtes-vous la bonne personne pour ces sujets ? Si c’est le cas, j’aimerais mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\n{cta}\n\nSinon, je vous serais reconnaissant de me transmettre le contact de la personne en charge.'+END},
+ {id:'maint',n:'Maintenance',f:['cta'],
   s:'L’entretien de vos compresseurs',
-  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nUn compresseur mal entretenu, c’est un risque d’arrêt de production et une consommation d’énergie qui grimpe. Nos techniciens interviennent sur toutes les marques, avec des contrats de maintenance adaptés à chaque installation, du simple contrôle annuel à la garantie totale.\n\nComment est entretenue votre installation aujourd’hui ? Je vous propose d’en parler quelques minutes le {creneau1} ou le {creneau2}.\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable maintenance ?'+END},
- {id:'eco',n:'Économies d’énergie',f:['creneau1','creneau2'],
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nUn compresseur mal entretenu, c’est un risque d’arrêt de production et une consommation d’énergie qui grimpe. Nos techniciens interviennent sur toutes les marques, avec des contrats de maintenance adaptés à chaque installation, du simple contrôle annuel à la garantie totale.\n\nComment est entretenue votre installation aujourd’hui ?\n\n{cta}\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable maintenance ?'+END},
+ {id:'eco',n:'Économies d’énergie',f:['cta'],
   s:'Réduire la facture d’énergie de votre air comprimé',
-  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nL’air comprimé représente souvent une part importante de la consommation électrique d’un site industriel, et une bonne partie se perd en fuites ou dans des compresseurs mal réglés. Nous aidons les entreprises à repérer ces pertes et à les réduire : recherche de fuites, réglages, remplacement par du matériel plus économe.\n\nSeriez-vous ouvert à un court échange le {creneau1} ou le {creneau2} pour voir ce qu’il en est chez vous ?\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable concerné ?'+END}
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nL’air comprimé représente souvent une part importante de la consommation électrique d’un site industriel, et une bonne partie se perd en fuites ou dans des compresseurs mal réglés. Nous aidons les entreprises à repérer ces pertes et à les réduire : recherche de fuites, réglages, remplacement par du matériel plus économe.\n\n{cta}\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable concerné ?'+END}
 ]},
 {id:'ancien',n:'Ancien client',d:'Reprendre contact : 3 situations',f:[],
  v:[
- {id:'travaux',n:'Travaux réalisés',f:['historique','creneau1','creneau2'],
+ {id:'travaux',n:'Travaux réalisés',f:['historique','cta'],
   s:'Airflux – des nouvelles de vos installations',
-  b:'{bonjour}\n\nNous avons eu le plaisir de travailler ensemble par le passé ({historique}), et je souhaitais prendre de vos nouvelles.\n\nOù en sont vos installations d’air comprimé aujourd’hui ? Vos besoins ont peut-être évolué : nouveau compresseur, extension du réseau, contrat de maintenance ou simple contrôle de vos équipements.\n\nJe vous propose un court échange téléphonique le {creneau1} ou le {creneau2} pour faire le point ensemble. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.\n\nAu plaisir d’échanger avec vous,\n\nBien cordialement,\n\n'+SIG},
- {id:'devis',n:'Devis sans suite',f:['objetDevis','dateDevis2','creneau1','creneau2'],
+  b:'{bonjour}\n\nNous avons eu le plaisir de travailler ensemble par le passé ({historique}), et je souhaitais prendre de vos nouvelles.\n\nOù en sont vos installations d’air comprimé aujourd’hui ? Vos besoins ont peut-être évolué : nouveau compresseur, extension du réseau, contrat de maintenance ou simple contrôle de vos équipements.\n\n{cta}\n\nAu plaisir d’échanger avec vous,\n\nBien cordialement,\n\n'+SIG},
+ {id:'devis',n:'Devis sans suite',f:['objetDevis','dateDevis2','cta'],
   s:'Suite à notre proposition pour {objetDevis}',
-  b:'{bonjour}\n\nNous vous avions adressé {dateDevis2} une proposition pour {objetDevis}. Nous n’avions pas travaillé ensemble à cette occasion, et je me permets de revenir vers vous pour savoir où vous en êtes aujourd’hui.\n\nVotre installation, vos besoins ou votre prestataire actuel ont peut-être évolué depuis. Si vous le souhaitez, je serais ravi de vous faire une nouvelle proposition, à jour et adaptée à votre situation.\n\nJe vous propose un court échange téléphonique le {creneau1} ou le {creneau2}. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.\n\nBien cordialement,\n\n'+SIG},
- {id:'compte',n:'Rencontré, sans suite',f:['rencontre','creneau1','creneau2'],
+  b:'{bonjour}\n\nNous vous avions adressé {dateDevis2} une proposition pour {objetDevis}. Nous n’avions pas travaillé ensemble à cette occasion, et je me permets de revenir vers vous pour savoir où vous en êtes aujourd’hui.\n\nVotre installation, vos besoins ou votre prestataire actuel ont peut-être évolué depuis. Si vous le souhaitez, je serais ravi de vous faire une nouvelle proposition, à jour et adaptée à votre situation.\n\n{cta}\n\nBien cordialement,\n\n'+SIG},
+ {id:'compte',n:'Rencontré, sans suite',f:['rencontre','cta'],
   s:'Airflux – reprendre contact',
-  b:'{bonjour}\n\nNous avions eu l’occasion d’échanger {rencontre}, mais nous n’avons pas encore travaillé ensemble.\n\nJe me permets de revenir vers vous pour faire connaissance plus concrètement : comment sont aujourd’hui entretenues vos installations d’air comprimé ? Airflux peut vous accompagner sur la maintenance de vos compresseurs, les réseaux d’air, la recherche de fuites ou le remplacement de matériel.\n\nJe vous propose un court échange de 10 minutes le {creneau1} ou le {creneau2}. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.\n\nBien cordialement,\n\n'+SIG}
+  b:'{bonjour}\n\nNous avions eu l’occasion d’échanger {rencontre}, mais nous n’avons pas encore travaillé ensemble.\n\nJe me permets de revenir vers vous pour faire connaissance plus concrètement : comment sont aujourd’hui entretenues vos installations d’air comprimé ? Airflux peut vous accompagner sur la maintenance de vos compresseurs, les réseaux d’air, la recherche de fuites ou le remplacement de matériel.\n\n{cta}\n\nBien cordialement,\n\n'+SIG}
  ]},
 {id:'injoignable',n:'Prospect injoignable',d:'Appels sans réponse : 2 situations',f:[],v:[
- {id:'m1',n:'1er mail',f:['creneau1','creneau2'],
+ {id:'m1',n:'1er mail',f:['cta'],
   s:'Vos installations d’air comprimé',
-  b:'{bonjour}\n\nJ’ai essayé de vous joindre à plusieurs reprises, sans succès. Je me permets donc de vous écrire.\n\nJe souhaitais échanger avec vous au sujet de vos installations d’air comprimé et de leur maintenance, pour voir comment Airflux pourrait vous accompagner.\n\nJe vous propose un court échange téléphonique de 10 minutes le {creneau1} ou le {creneau2}.\n\nSi aucun de ces créneaux ne vous convient, n’hésitez pas à m’indiquer celui qui vous arrange, ou à me joindre directement au {tel}.'+END},
+  b:'{bonjour}\n\nJ’ai essayé de vous joindre à plusieurs reprises, sans succès. Je me permets donc de vous écrire.\n\nJe souhaitais échanger avec vous au sujet de vos installations d’air comprimé et de leur maintenance, pour voir comment Airflux pourrait vous accompagner.\n\n{cta}'+END},
  {id:'m2',n:'Dernier essai',f:[],
   s:'Re : Vos installations d’air comprimé',
   b:'{bonjour}\n\nJe n’ai pas réussi à vous joindre ces dernières semaines et je ne souhaite pas insister.\n\nUne simple réponse à ce mail me suffit : est-ce un sujet pour vous en ce moment, ou faut-il que je revienne vers vous plus tard ? Et si vous n’êtes pas la bonne personne, pourriez-vous m’indiquer qui contacter ?\n\nVous pouvez aussi me joindre directement au {tel}.'+END}
 ]},
 {id:'contact',n:'Nouveau contact recommandé',d:'Quelqu’un t’a orienté : 3 situations',f:[],v:[
- {id:'collegue',n:'Par un de ses collègues',f:['recommandePar','creneau1','creneau2'],
+ {id:'collegue',n:'Par un de ses collègues',f:['recommandePar','cta'],
   s:'De la part de {recommandePar} – air comprimé',
   b:'{bonjour}\n\n{recommandePar} m’a indiqué que vous étiez en charge des installations d’air comprimé et de leur maintenance.\n\nJe souhaiterais échanger avec vous quelques minutes pour mieux comprendre votre fonctionnement et voir si Airflux pourrait vous accompagner sur vos futurs projets ou sur l’entretien de vos équipements.\n\n'+CR+END},
- {id:'standard',n:'Par le standard',f:['creneau1','creneau2'],
+ {id:'standard',n:'Par le standard',f:['cta'],
   s:'Vos installations d’air comprimé',
   b:'{bonjour}\n\nVotre accueil m’a indiqué que vous étiez la personne en charge des installations d’air comprimé et de leur maintenance, et m’a transmis votre adresse.\n\nJe me présente : je travaille pour Airflux, spécialiste de l’air comprimé (installation, maintenance, dépannage, réseaux d’air). Je souhaiterais échanger avec vous quelques minutes pour mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\n'+CR+END},
- {id:'client',n:'Par un client Airflux',f:['recommandePar','creneau1','creneau2'],
+ {id:'client',n:'Par un client Airflux',f:['recommandePar','cta'],
   s:'De la part de {recommandePar}',
   b:'{bonjour}\n\n{recommandePar}, avec qui nous travaillons sur l’entretien de leurs installations d’air comprimé, m’a suggéré de vous contacter.\n\nJe souhaiterais échanger avec vous quelques minutes pour voir si Airflux pourrait également vous accompagner, que ce soit pour la maintenance de vos compresseurs ou un projet à venir.\n\n'+CR+END}
 ]},
@@ -230,7 +230,16 @@ const KEY='airflux_emails_v1';
 let S={t:'rdv',civ:'Monsieur',v:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
-S.var=S.var||{};
+S.var=S.var||{};S.cta=Object.assign({typ:'tel',mode:'prop2'},S.cta||{});
+const TYP=[['site','RDV sur site'],['tel','Appel'],['visio','Visio']];
+const MODE=[['prop2','Je propose 2 créneaux'],['prop1','Je propose 1 créneau'],['lui','Il choisit son créneau'],['rappel','Il me rappelle']];
+const TYPTXT={site:'un rendez-vous sur votre site',tel:'un court échange téléphonique d’une dizaine de minutes',visio:'un rendez-vous en visio d’une vingtaine de minutes'};
+function ctaTpl(){const t=TYPTXT[S.cta.typ],x=S.cta.typ==='site'?' Ce sera l’occasion de voir votre installation ensemble.':'';switch(S.cta.mode){
+ case 'prop1':return 'Je vous propose '+t+' le {creneau1}.'+x+' Si ce créneau ne vous convient pas, indiquez-moi simplement celui qui vous arrange.';
+ case 'lui':return 'Je vous propose '+t+'.'+x+' Pourriez-vous m’indiquer le jour et l’horaire qui vous conviendraient le mieux ?';
+ case 'rappel':return 'Si vous êtes intéressé par '+t+', vous pouvez me joindre directement au {tel} ou simplement répondre à ce mail avec vos disponibilités.';
+ default:return 'Je vous propose '+t+' le {creneau1} ou le {creneau2}.'+x+' Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.';}}
+function ctaKeys(){return S.cta.mode==='prop2'?['creneau1','creneau2']:S.cta.mode==='prop1'?['creneau1']:[]}
 const base=()=>T.find(t=>t.id===S.t)||T[0];
 const cur=()=>{const t=base();if(!t.v)return t;const v=t.v.find(x=>x.id===S.var[t.id])||t.v[0];return Object.assign({},t,v,{id:t.id})};
 function val(k){
@@ -238,15 +247,20 @@ function val(k){
   return (S.v[k]||'').trim();
 }
 function build(tpl,html){
+  tpl=tpl.replace(/\{cta\}/g,()=>ctaTpl());
   return tpl.replace(/\{(\w+)\}/g,(m,k)=>{const v=val(k);if(v)return html?esc(v):v;const ph='['+(FL[k]?FL[k][0]:k)+']';return html?`<mark>${esc(ph)}</mark>`:ph});
 }
 function drawFields(){
-  const t=cur(),keys=['nom',...t.f,'tel'];
+  const t=cur(),hasC=t.f.includes('cta'),keys=['nom',...t.f.flatMap(k=>k==='cta'?ctaKeys():[k]),'tel'];
   const bt=base(),va=bt.v?`<div class="full"><span class="lbl">Situation</span><div class="civ" id="var">${bt.v.map(x=>`<button data-v="${x.id}" class="${x.id===(S.var[bt.id]||bt.v[0].id)?'on':''}">${esc(x.n)}</button>`).join('')}</div></div>`:'';
-  $('#fields').innerHTML=va+`<div><span class="lbl">Civilité</span><div class="civ" id="civ"><button data-c="Monsieur" class="${S.civ==='Monsieur'?'on':''}">M.</button><button data-c="Madame" class="${S.civ==='Madame'?'on':''}">Mme</button></div></div>`+
+  const seg=(id,arr,on)=>`<div class="civ seg" id="${id}">${arr.map(([k,l])=>`<button data-x="${k}" class="${k===on?'on':''}">${esc(l)}</button>`).join('')}</div>`;
+  const ca=hasC?`<div class="full ctab"><span class="lbl">Ce que tu demandes</span>${seg('ctyp',TYP,S.cta.typ)}${seg('cmode',MODE,S.cta.mode)}</div>`:'';
+  $('#fields').innerHTML=va+ca+`<div><span class="lbl">Civilité</span><div class="civ" id="civ"><button data-c="Monsieur" class="${S.civ==='Monsieur'?'on':''}">M.</button><button data-c="Madame" class="${S.civ==='Madame'?'on':''}">Mme</button></div></div>`+
    keys.map(k=>`<div class="${k==='points'?'full':''}"><label class="lbl">${esc(FL[k][0])}</label>${k==='points'?`<textarea class="inp" data-k="${k}" rows="3" placeholder="${esc(FL[k][1])}">${esc(S.v[k])}</textarea>`:`<input class="inp" data-k="${k}" value="${esc(S.v[k])}" placeholder="${esc(FL[k][1])}">`}</div>`).join('');
   document.querySelectorAll('[data-k]').forEach(i=>i.oninput=()=>{S.v[i.dataset.k]=i.value;save();drawMail()});
   document.querySelectorAll('#civ button').forEach(b=>b.onclick=()=>{S.civ=b.dataset.c;save();drawFields()});
+  document.querySelectorAll('#ctyp button').forEach(b=>b.onclick=()=>{S.cta.typ=b.dataset.x;save();drawFields()});
+  document.querySelectorAll('#cmode button').forEach(b=>b.onclick=()=>{S.cta.mode=b.dataset.x;save();drawFields()});
   document.querySelectorAll('#var button').forEach(b=>b.onclick=()=>{S.var[base().id]=b.dataset.v;save();drawFields()});
   drawMail();
 }
