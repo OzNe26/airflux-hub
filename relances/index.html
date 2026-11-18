@@ -247,6 +247,7 @@ a.btn{text-decoration:none}
 .mbox{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .mbox h4{margin:0 0 4px;font-size:17px}
 .mbox p{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+[hidden]{display:none!important}
 .outc{display:grid;gap:8px}
 .outc button{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px}
 .outc button:hover{border-color:var(--navy)}
@@ -296,6 +297,7 @@ a.btn{text-decoration:none}
     <div class="tools">
       <button class="mini" id="exCsv">Copier en CSV (Excel)</button>
       <button class="mini" id="exJson">Sauvegarder (fichier)</button>
+      <a class="mini" href="../dashboard/" style="background:var(--navy);color:#fff;border-color:var(--navy)">Voir mon dashboard</a>
       <label class="mini" style="cursor:pointer">Restaurer une sauvegarde<input type="file" id="imJson" accept=".json,application/json" hidden></label>
     </div>
     <div class="note">Les relances sont enregistrées <b>dans ce navigateur</b>, sur cet appareil. Pour les retrouver sur un autre appareil, utilise « Sauvegarder » puis « Restaurer ».</div>
@@ -309,11 +311,16 @@ a.btn{text-decoration:none}
 <div class="modal" id="mDone"><div class="mbox"><h4>Comment s’est passé l’appel ?</h4><p id="mDoneP"></p>
   <div class="outc">
     <button data-o="rdv"><span class="dot" style="background:#13795b"></span><span>Rendez-vous obtenu<small>La relance est terminée</small></span></button>
-    <button data-o="rappel"><span class="dot" style="background:#1e3560"></span><span>À rappeler<small>Choisis la prochaine date</small></span></button>
+    <button data-o="rappel"><span class="dot" style="background:#1e3560"></span><span>Intéressé, à rappeler<small>Contact qualifié · choisis la prochaine date</small></span></button>
+    <button data-o="devis"><span class="dot" style="background:#8a5cf6"></span><span>Devis envoyé<small>Montant facultatif · relance du devis dans 7 jours</small></span></button>
+    <button data-o="vente"><span class="dot" style="background:#0e9f6e"></span><span>Vente conclue<small>Montant facultatif · la relance est terminée</small></span></button>
+    <button data-o="perdu"><span class="dot" style="background:#6b7280"></span><span>Devis perdu<small>La relance est terminée</small></span></button>
     <button data-o="nrp"><span class="dot" style="background:#f2a33a"></span><span>Pas de réponse<small>On reprogramme dans 2 jours ouvrés</small></span></button>
     <button data-o="non"><span class="dot" style="background:#b42318"></span><span>Pas intéressé<small>La relance est terminée</small></span></button>
   </div>
-  <div style="text-align:right;margin-top:14px"><button class="btn s" id="mDoneX">Annuler</button></div>
+  <div id="amt" hidden style="margin-top:12px"><div class="f"><label for="amtV" id="amtL">Montant HT</label><div class="in"><input id="amtV" type="text" inputmode="decimal" placeholder="Laisser vide si inconnu"><u>€ HT</u></div></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn s" id="amtBack">Retour</button><button class="btn p" id="amtOk">Valider</button></div></div>
+  <div style="text-align:right;margin-top:14px" id="mDoneF"><button class="btn s" id="mDoneX">Annuler</button></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -378,7 +385,7 @@ $('fOk').onclick=()=>{
   if(!$('fD').value){toast('Choisis une date');return}
   const o={n,c:$('fC').value.trim(),p:$('fP').value.trim(),d:$('fD').value,h:$('fH').value,m:F.mo,note:$('fN').value.trim(),...(F.s||{})};
   if(EDIT){const r=R.find(x=>x.id===EDIT);Object.assign(r,o);toast('Relance modifiée')}
-  else{R.push({id:uid(),created:today(),done:null,hist:[],...o});toast('Relance ajoutée pour le '+fmtD(o.d))}
+  else{R.push({id:uid(),created:today(),done:null,hist:[],ev:[{d:today(),t:'cree'}],st:'prospect',...o});toast('Relance ajoutée pour le '+fmtD(o.d))}
   save();resetForm();draw();
 };
 $('fX').onclick=()=>{resetForm()};
@@ -394,12 +401,21 @@ function groups(){
   return {late:open.filter(r=>r.d<t),today:open.filter(r=>r.d===t),week:open.filter(r=>r.d>t&&r.d<=ew),later:open.filter(r=>r.d>ew),
     done:R.filter(r=>r.done&&(!q||norm(r.n+' '+(r.note||'')).includes(q))).sort((a,b)=>b.done.at.localeCompare(a.done.at))};
 }
-const OUT={rdv:['RDV obtenu','res-ok'],non:['Pas intéressé','res-ko']};
+const OUT={rdv:['RDV obtenu','res-ok'],non:['Pas intéressé','res-ko'],vente:['Vente conclue','res-ok'],perdu:['Devis perdu','res-ko']};
+const STG={qualifie:'Contact qualifié',rdv:'RDV obtenu',devis:'Devis envoyé',gagne:'Gagné',perdu:'Perdu'};
+const RANK={prospect:0,qualifie:1,rdv:2,devis:3,gagne:4,perdu:4};
+const evt=(r,t,x)=>{r.ev=r.ev||[];r.ev.push(Object.assign({d:today(),t},x||{}))};
+const stage=(r,st)=>{if(st==='perdu'||st==='gagne'||(RANK[st]||0)>=(RANK[r.st||'prospect']||0))r.st=st};
+const fmtE=v=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(v)+' € HT';
+// anciennes relances : on reconstitue ce qui est sûr (création, résultat final)
+R.forEach(r=>{if(r.ev)return;r.ev=[{d:r.created||r.d,t:'cree'}];r.legacy=1;
+  if(r.done){r.ev.push({d:r.done.at,t:'appel'},{d:r.done.at,t:r.done.o==='rdv'?'rdv':'non'});r.st=r.done.o==='rdv'?'rdv':'perdu'}});
+save();
 function card(r){
   const d=diffD(r.d),when=r.done?'':d<0?`en retard de ${-d} j`:d===0?'aujourd’hui':d===1?'demain':'dans '+d+' j';
   const tel=(r.p||'').replace(/[^\d+]/g,'');
   return `<div class="rl" data-id="${r.id}"><div class="dt"><b>${dayN(r.d)}</b><span>${monS(r.d)}</span></div><div class="bd">
-    <div class="nm">${esc(r.n)} ${r.s?`<span class="mtag ${SL[r.s][1]}">${SL[r.s][0]}</span>`:''} ${r.done?`<span class="mtag ${OUT[r.done.o][1]}">${OUT[r.done.o][0]}</span>`:''}</div>
+    <div class="nm">${esc(r.n)} ${r.s?`<span class="mtag ${SL[r.s][1]}">${SL[r.s][0]}</span>`:''} ${r.done&&OUT[r.done.o]?`<span class="mtag ${OUT[r.done.o][1]}">${OUT[r.done.o][0]}${r.mt&&r.done.o==='vente'?' · '+fmtE(r.mt):''}</span>`:(!r.done&&r.st&&STG[r.st]?`<span class="mtag" style="background:#efe9fd;color:#5b3fb0">${STG[r.st]}${r.st==='devis'&&r.mt?' · '+fmtE(r.mt):''}</span>`:'')}</div>
     <div class="mt"><span><b style="color:var(--text)">${esc(r.m||'Rappel')}</b>${r.h?' à '+esc(r.h):''}${when?' · '+when:''}</span>${r.c?`<span>${esc(r.c)}</span>`:''}${r.p?`<span>${esc(r.p)}</span>`:''}${r.v?`<span>${esc(r.v)} ${esc(r.cp||'')}</span>`:''}</div>
     ${r.note?`<div class="nt">${esc(r.note)}</div>`:''}
     ${(r.hist||[]).length?`<div class="hist">${r.hist.slice(-3).map(h=>'• '+esc(h)).join('<br>')}</div>`:''}
@@ -422,21 +438,35 @@ let DONE=null;
 function act(id,a){
   const r=R.find(x=>x.id===id);if(!r)return;
   if(a==='done'){DONE=id;$('mDoneP').textContent=r.n+(r.c?' · '+r.c:'');$('mDone').classList.add('on');return}
-  if(a==='p1'||a==='p7'){const nd=a==='p1'?addWork(1,r.d<today()?today():r.d):addD(7,r.d<today()?today():r.d);r.hist=r.hist||[];r.hist.push(fmtD(today())+' : reportée au '+fmtD(nd));r.d=nd;save();draw();toast('Reportée au '+fmtD(nd));return}
+  if(a==='p1'||a==='p7'){const nd=a==='p1'?addWork(1,r.d<today()?today():r.d):addD(7,r.d<today()?today():r.d);r.hist=r.hist||[];r.hist.push(fmtD(today())+' : reportée au '+fmtD(nd));evt(r,'report');r.d=nd;save();draw();toast('Reportée au '+fmtD(nd));return}
   if(a==='edit'){edit(id);return}
   if(a==='del'){if(!r._c){r._c=1;toast('Clique encore sur « Supprimer » pour confirmer');setTimeout(()=>{delete r._c},3000);return}R=R.filter(x=>x.id!==id);save();draw();toast('Relance supprimée');return}
-  if(a==='reopen'){r.done=null;r.d=r.d<today()?today():r.d;save();draw();return}
+  if(a==='reopen'){r.done=null;evt(r,'reouvert');if(r.st==='perdu'||r.st==='gagne')r.st=r.mt?'devis':'qualifie';r.d=r.d<today()?today():r.d;save();draw();return}
   if(a==='ics'){ics(r);return}
 }
+let PEND=null;
+function closeModal(){$('mDone').classList.remove('on');$('amt').hidden=true;$('mDoneF').hidden=false;document.querySelector('#mDone .outc').hidden=false;PEND=null}
 document.querySelectorAll('#mDone [data-o]').forEach(b=>b.onclick=()=>{
-  const r=R.find(x=>x.id===DONE);$('mDone').classList.remove('on');if(!r)return;
-  const o=b.dataset.o;r.hist=r.hist||[];
-  if(o==='rdv'||o==='non'){r.done={o,at:today()};r.hist.push(fmtD(today())+' : '+OUT[o][0]);toast(o==='rdv'?'Bravo pour le rendez-vous !':'Relance terminée')}
-  else if(o==='nrp'){const nd=addWork(2);r.hist.push(fmtD(today())+' : pas de réponse, rappel le '+fmtD(nd));r.d=nd;toast('Rappel reprogrammé le '+fmtD(nd))}
-  else{r.hist.push(fmtD(today())+' : appel fait, à rappeler');edit(r.id);$('fD').value=addD(7);drawForm();toast('Choisis la prochaine date puis « Enregistrer »')}
-  save();draw();
+  const o=b.dataset.o;
+  if(o==='devis'||o==='vente'){PEND=o;const r=R.find(x=>x.id===DONE);document.querySelector('#mDone .outc').hidden=true;$('mDoneF').hidden=true;$('amt').hidden=false;$('amtL').textContent=o==='devis'?'Montant du devis':'Montant de la vente';$('amtV').value=r&&r.mt?String(r.mt):'';$('amtV').focus();return}
+  outcome(o,null);
 });
-$('mDoneX').onclick=()=>$('mDone').classList.remove('on');
+$('amtBack').onclick=()=>{$('amt').hidden=true;$('mDoneF').hidden=false;document.querySelector('#mDone .outc').hidden=false;PEND=null};
+$('amtOk').onclick=()=>{const v=parseFloat($('amtV').value.replace(/\s/g,'').replace(',','.'));outcome(PEND,isFinite(v)&&v>0?Math.round(v):null)};
+$('amtV').addEventListener('keydown',e=>{if(e.key==='Enter')$('amtOk').click()});
+function outcome(o,m){
+  const r=R.find(x=>x.id===DONE);closeModal();if(!r)return;
+  r.hist=r.hist||[];evt(r,'appel');
+  if(o==='rdv'){evt(r,'rdv');stage(r,'rdv');r.done={o,at:today()};r.hist.push(fmtD(today())+' : RDV obtenu');toast('Bravo pour le rendez-vous !')}
+  else if(o==='non'){evt(r,'non');stage(r,'perdu');r.done={o,at:today()};r.hist.push(fmtD(today())+' : pas intéressé');toast('Relance terminée')}
+  else if(o==='nrp'){evt(r,'nrp');const nd=addWork(2);r.hist.push(fmtD(today())+' : pas de réponse, rappel le '+fmtD(nd));r.d=nd;toast('Rappel reprogrammé le '+fmtD(nd))}
+  else if(o==='devis'){evt(r,'devis',m?{m}:null);stage(r,'devis');if(m)r.mt=m;const nd=addD(7);r.m='Relance devis';r.d=nd;r.hist.push(fmtD(today())+' : devis envoyé'+(m?' ('+fmtE(m)+')':'')+', relance le '+fmtD(nd));toast('Devis noté · relance prévue le '+fmtD(nd))}
+  else if(o==='vente'){evt(r,'vente',m?{m}:null);stage(r,'gagne');if(m)r.mt=m;r.done={o,at:today()};r.hist.push(fmtD(today())+' : vente conclue'+(m?' ('+fmtE(m)+')':''));toast('Bravo pour la vente !')}
+  else if(o==='perdu'){evt(r,'perdu');stage(r,'perdu');r.done={o,at:today()};r.hist.push(fmtD(today())+' : devis perdu');toast('Relance terminée')}
+  else{evt(r,'qualifie');stage(r,'qualifie');r.hist.push(fmtD(today())+' : intéressé, à rappeler');save();draw();edit(r.id);$('fD').value=addD(7);drawForm();toast('Choisis la prochaine date puis « Enregistrer »');return}
+  save();draw();
+}
+$('mDoneX').onclick=closeModal;
 $('flt').addEventListener('input',draw);
 
 /* ---------- Agenda, export, sauvegarde ---------- */
@@ -449,7 +479,7 @@ function ics(r){
   dl('relance-'+norm(r.n).replace(/ /g,'-').slice(0,30)+'.ics','text/calendar',body);toast('Ouvre le fichier pour l’ajouter à Outlook');
 }
 $('exCsv').onclick=()=>{const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
-  const rows=[['Société','Contact','Téléphone','Date','Heure','Motif','Statut','Note','Ville','Code postal','Référence'],...R.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(r=>[r.n,r.c,r.p,r.d,r.h,r.m,r.done?OUT[r.done.o][0]:'À faire',r.note,r.v,r.cp,r.ref])];
+  const rows=[['Société','Contact','Téléphone','Date','Heure','Motif','Statut','Étape','Montant (€ HT)','Note','Ville','Code postal','Référence'],...R.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(r=>[r.n,r.c,r.p,r.d,r.h,r.m,r.done&&OUT[r.done.o]?OUT[r.done.o][0]:'À faire',STG[r.st]||'Prospect',r.mt||'',r.note,r.v,r.cp,r.ref])];
   copyText(rows.map(r=>r.map(q).join(';')).join('\n'),'Copié : colle-le dans Excel')};
 $('exJson').onclick=()=>{dl('relances-airflux-'+today()+'.json','application/json',JSON.stringify(R,null,1));toast('Sauvegarde téléchargée')};
 $('imJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const a=JSON.parse(await f.text());if(!Array.isArray(a))throw 0;let n=0;a.forEach(x=>{if(x&&x.id&&x.n&&x.d&&!R.some(y=>y.id===x.id)){R.push(x);n++}});save();draw();toast(n+' relance(s) restaurée(s)')}catch(_){toast('Fichier de sauvegarde invalide')}e.target.value=''};

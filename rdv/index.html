@@ -519,7 +519,7 @@ $('toRel').onclick=()=>{
   if(!S.n){toast('Choisis d’abord la société');return}
   let R=[];try{R=JSON.parse(localStorage.getItem('airflux_relances_v1')||'[]')}catch(e){}
   const p=S.ppl.find(x=>x.nom||x.tel)||{};const o=S.ours||{};
-  R.push({id:uid(),created:iso(new Date()),done:null,hist:['RDV du '+fmtLong(S.d)],n:S.n,c:[p.nom,p.fn].filter(Boolean).join(', '),p:p.tel||'',d:$('fND').value||addWork(5),h:'',m:S.next==='Envoyer une offre'?'Relance devis':S.next==='Envoyer une doc'?'Envoyer une doc':S.next==='Nouveau rendez-vous'?'Fixer un RDV':S.next==='Rappeler'?'Rappel':'Suivi après RDV',note:(S.next+'. '+(S.cr||'')).trim().slice(0,600),s:o.s,ref:o.ref,v:o.v,cp:o.cp,co:o.co});
+  R.push({id:uid(),created:iso(new Date()),done:null,ev:[{d:iso(new Date()),t:'cree'}],st:'rdv',hist:['RDV du '+fmtLong(S.d)],n:S.n,c:[p.nom,p.fn].filter(Boolean).join(', '),p:p.tel||'',d:$('fND').value||addWork(5),h:'',m:S.next==='Envoyer une offre'?'Relance devis':S.next==='Envoyer une doc'?'Envoyer une doc':S.next==='Nouveau rendez-vous'?'Fixer un RDV':S.next==='Rappeler'?'Rappel':'Suivi après RDV',note:(S.next+'. '+(S.cr||'')).trim().slice(0,600),s:o.s,ref:o.ref,v:o.v,cp:o.cp,co:o.co});
   try{localStorage.setItem('airflux_relances_v1',JSON.stringify(R));toast('Relance créée dans le Suivi des relances')}catch(e){toast('Impossible d’enregistrer la relance')}
   $('bSave').click();
 };
