@@ -309,7 +309,7 @@ main{display:block!important}
 </div>
 <div class="grid" id="grid"></div>
 <div class="card bk" id="syncCard">
-  <h2>Synchronisation entre tes appareils</h2>
+  <h2>Annuaire partagé de l’équipe</h2>
   <div class="sync" id="sync"></div>
 </div>
 <div class="card bk">
@@ -369,16 +369,6 @@ main{display:block!important}
   <button class="mx" data-close>×</button>
   <div class="dv" id="dv"></div>
 </div></div>
-<div class="md" id="mdL"><div class="mbox" style="max-width:420px">
-  <button class="mx" data-close>×</button>
-  <h3>Connexion à la synchronisation</h3>
-  <div class="frm" style="grid-template-columns:1fr">
-    <div class="f"><label>E-mail</label><div class="in"><input id="lE" type="email" autocomplete="username"></div></div>
-    <div class="f"><label>Mot de passe</label><div class="in"><input id="lP" type="password" autocomplete="current-password"></div></div>
-  </div>
-  <div class="ocrs" id="lS" style="margin-top:8px"></div>
-  <div class="mf"><span></span><div class="r"><button class="btn g" data-close type="button">Annuler</button><button class="btn p" id="lOk" type="button">Se connecter</button></div></div>
-</div></div>
 <div class="zoom" id="zoom"><img alt=""></div>
 
 </main>
@@ -399,7 +389,7 @@ const TY={pr:['Prospect','#7fa33e'],cl:['Client','#e8708c'],ac:['Ancien client',
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const who=e=>{e=String(e||'');const l=e.split('@')[0].split(/[._-]/).filter(Boolean);return l.length?l.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' '):e};
+const who=e=>{e=String(e||'');if(!e.includes('@'))return e;const l=e.split('@')[0].split(/[._-]/).filter(Boolean);return l.length?l.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' '):e};
 const fmtD=s=>{if(!s)return'';const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
 OURS.forEach(p=>{p.k=norm(p.n+' '+(p.v||'')+' '+(p.cp||''))});
 
@@ -414,10 +404,10 @@ const dbDel=id=>tx('readwrite',s=>{s.delete(id)});
 /* ---------- Liste ---------- */
 let F={q:'',ty:'',sort:'rec',mine:false};
 function fullName(c){return [c.p,c.n].filter(Boolean).join(' ')}
-function matches(c){if(F.ty&&c.ty!==F.ty)return false;if(F.mine&&SY.ses&&c.par&&c.par!==SY.ses.email)return false;if(!F.q)return true;const k=norm([c.p,c.n,c.fn,c.so,c.v,c.cp,c.e,c.no,c.ou].join(' '))+' '+[c.m,c.t].join(' ').replace(/\D/g,'');return norm(F.q).split(' ').every(w=>k.includes(w)||k.includes(w.replace(/\D/g,'')||'§'))}
+function matches(c){if(F.ty&&c.ty!==F.ty)return false;if(F.mine&&(c.par||'')!==ME())return false;if(!F.q)return true;const k=norm([c.p,c.n,c.fn,c.so,c.v,c.cp,c.e,c.no,c.ou].join(' '))+' '+[c.m,c.t].join(' ').replace(/\D/g,'');return norm(F.q).split(' ').every(w=>k.includes(w)||k.includes(w.replace(/\D/g,'')||'§'))}
 function drawFl(){const cnt=t=>L.filter(c=>!t||c.ty===t).length;
   $('fl').innerHTML=`<button class="chip${F.ty===''?' on':''}" data-t="">Tous · ${cnt('')}</button>`+Object.entries(TY).filter(([k])=>cnt(k)).map(([k,[l]])=>`<button class="chip${F.ty===k?' on':''}" data-t="${k}">${l} · ${cnt(k)}</button>`).join('')+
-  (SY.ses&&L.some(c=>c.par&&c.par!==SY.ses.email)?`<button class="chip${F.mine?' on':''}" id="fMine">Mes cartes</button>`:'')+
+  (ME()&&L.some(c=>c.par&&c.par!==ME())?`<button class="chip${F.mine?' on':''}" id="fMine">Mes cartes</button>`:'')+
   `<select id="sort"><option value="rec">Plus récentes</option><option value="nom">Par nom</option><option value="so">Par société</option></select>`;
   $('sort').value=F.sort;if($('fMine'))$('fMine').onclick=()=>{F.mine=!F.mine;drawFl();drawGrid()};$('sort').onchange=e=>{F.sort=e.target.value;drawGrid()};
   document.querySelectorAll('#fl [data-t]').forEach(b=>b.onclick=()=>{F.ty=b.dataset.t;drawFl();drawGrid()})}
@@ -426,7 +416,7 @@ function drawGrid(){
   if(!L.length){$('grid').innerHTML=`<div class="empty2" style="grid-column:1/-1"><b>Ton annuaire est vide</b>Prends une carte en photo avec « Ajouter une carte », ou choisis-en<br>une ou plusieurs déjà prises avec « Depuis la galerie » :<br>la lecture automatique remplit les coordonnées.</div>`;return}
   if(!R.length){$('grid').innerHTML=`<div class="empty2" style="grid-column:1/-1"><b>Aucune carte trouvée</b>Essaie un autre mot ou enlève le filtre.</div>`;return}
   $('grid').innerHTML=R.map(c=>{const t=TY[c.ty]||TY.au,ini=((c.p||'')[0]||'')+((c.n||'')[0]||'')||'?';
-    return `<button class="bc" data-id="${c.id}"><div class="ph" style="${c.i1?`background-image:url(${c.i1})`:''}">${c.i1?'':esc(ini.toUpperCase())}<span class="ty" style="background:${t[1]}">${t[0]}</span></div><div class="bd"><b>${esc(fullName(c)||'Sans nom')}</b>${c.fn?`<div class="fn">${esc(c.fn)}</div>`:''}${c.so?`<div class="so">${esc(c.so)}${c.v?` <small>· ${esc(c.v)}</small>`:''}</div>`:''}${c.par&&SY.ses&&c.par!==SY.ses.email?`<div class="fn" style="margin-top:6px">Ajoutée par ${esc(who(c.par))}</div>`:''}</div></button>`}).join('');
+    return `<button class="bc" data-id="${c.id}"><div class="ph" style="${c.i1?`background-image:url(${c.i1})`:''}">${c.i1?'':esc(ini.toUpperCase())}<span class="ty" style="background:${t[1]}">${t[0]}</span></div><div class="bd"><b>${esc(fullName(c)||'Sans nom')}</b>${c.fn?`<div class="fn">${esc(c.fn)}</div>`:''}${c.so?`<div class="so">${esc(c.so)}${c.v?` <small>· ${esc(c.v)}</small>`:''}</div>`:''}${c.par&&c.par!==ME()?`<div class="fn" style="margin-top:6px">Ajoutée par ${esc(who(c.par))}</div>`:''}</div></button>`}).join('');
   document.querySelectorAll('.bc').forEach(b=>b.onclick=()=>view(b.dataset.id));
 }
 $('q').oninput=e=>{F.q=e.target.value;drawGrid()};
@@ -531,11 +521,11 @@ $('bGal').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!
     try{const c={id:uid(),ty:'pr',d:iso(new Date()),i1:await shrink(fs[i])};
       try{const w=await worker();const r=await w.recognize(c.i1);c.raw=r.data.text;Object.assign(c,Object.fromEntries(Object.entries(parse(c.raw)).filter(([,v])=>v)))}catch(_){}
       const o=OURS.find(p=>norm(p.n)===norm(c.so));if(o){c.ref=o.ref||'';if(['pr','cl','ac'].includes(o.s))c.ty=o.s}
-      c.cr=c.up=new Date().toISOString();if(SY.ses&&SY.ses.email)c.par=c.mod=SY.ses.email;await dbPut(c);mark(c.id);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
+      c.cr=c.up=new Date().toISOString();if(ME())c.par=c.mod=ME();await dbPut(c);mark(c.id);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
   syncSoon();toast(ok+' carte'+(ok>1?'s':'')+' ajoutée'+(ok>1?'s':'')+', vérifie-les');};
 $('eOk').onclick=async()=>{if(!fullName(E).trim()&&!(E.so||'').trim()){toast('Indique au moins un nom ou une société');return}
   const o=soLink();if(o&&!E.ref)E.ref=o.ref||'';
-  E.up=new Date().toISOString();if(!E.cr)E.cr=E.up;const me=SY.ses&&SY.ses.email;if(me){if(!E.par)E.par=me;E.mod=me}
+  E.up=new Date().toISOString();if(!E.cr)E.cr=E.up;const me=ME();if(me){if(!E.par)E.par=me;E.mod=me}
   try{await dbPut(E);mark(E.id);const i=L.findIndex(x=>x.id===E.id);if(i>=0)L[i]=E;else L.push(E);closeM('mdE');drawFl();drawGrid();syncSoon();toast('Carte enregistrée');if(fromV)view(E.id)}
   catch(e){toast('Enregistrement impossible (espace plein ?)')}};
 let delArm=0;
@@ -601,6 +591,7 @@ $('xRes').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)r
 
 /* ---------- Synchronisation (Supabase) ---------- */
 const SB={url:'',key:''};
+const ME=()=>{try{return (localStorage.getItem('airflux_me')||'').trim()}catch(e){return''}};
 const SKEY='airflux_annuaire_sync_v1',TB='airflux_cartes';
 let SY={ses:null,last:'',pend:[],dels:[],at:'',err:''};
 try{SY=Object.assign(SY,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){}
@@ -610,7 +601,7 @@ function mark(id){if(!SY.pend.includes(id))SY.pend.push(id);SY.dels=SY.dels.filt
 function markDel(id){SY.pend=SY.pend.filter(x=>x!==id);if(!SY.dels.some(d=>d.id===id))SY.dels.push({id,up:new Date().toISOString()});sSave()}
 async function auth(body,grant){const r=await fetch(SB.url+'/auth/v1/token?grant_type='+grant,{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error_description||j.msg||j.message||'Erreur de connexion'),{status:r.status});
   SY.ses={at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),email:(j.user&&j.user.email)||(SY.ses&&SY.ses.email)||''};sSave()}
-async function token(){if(!SY.ses)throw new Error('non connecté');if(SY.ses.exp-90<Date.now()/1000){try{await auth({refresh_token:SY.ses.rt},'refresh_token')}catch(e){if(e.status===400||e.status===401){SY.ses=null;sSave();drawSync()}throw e}}return SY.ses.at}
+async function token(){if(!SY.ses)throw new Error('non connecté');if(SY.ses.exp-90<Date.now()/1000){try{await auth({refresh_token:SY.ses.rt},'refresh_token')}catch(e){if(e.status===400||e.status===401){SY.ses=null;sSave();autoTried=false;autoLogin()}throw e}}return SY.ses.at}
 async function api(path,opt={}){const t=await token();const r=await fetch(SB.url+'/rest/v1/'+path,Object.assign({},opt,{headers:Object.assign({apikey:SB.key,Authorization:'Bearer '+t,'Content-Type':'application/json'},opt.headers||{})}));if(!r.ok){const tx=await r.text().catch(()=>'');throw new Error('HTTP '+r.status+' '+tx.slice(0,120))}return r.status===204?null:r.json().catch(()=>null)}
 const strip=c=>{const d=Object.assign({},c);delete d.i1;delete d.i2;delete d.id;delete d.raw;return d};
 let busy=false,again=false;
@@ -630,25 +621,27 @@ async function sync(){if(!sbOn()||!SY.ses)return;if(busy){again=true;return}busy
   busy=false;drawSync();if(again){again=false;sync()}}
 let st=null;function syncSoon(){clearTimeout(st);st=setTimeout(sync,800)}
 function ago(s){if(!s)return'';const m=Math.round((Date.now()-new Date(s))/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+fmtD(s.slice(0,10))}
+function teamCred(){try{return JSON.parse(localStorage.getItem('airflux_team')||'null')}catch(e){return null}}
+let autoTried=false;
+async function autoLogin(){if(!sbOn()||SY.ses)return;const t=teamCred();if(!t||!t.e||!t.p){drawSync();return}
+  if(autoTried)return;autoTried=true;
+  try{await auth({email:t.e,password:t.p},'password');SY.err='';SY.last='';for(const c of L){if(!SY.pend.includes(c.id))SY.pend.push(c.id)}sSave();drawSync();sync()}
+  catch(e){SY.err=e.status===400?'Accès refusé : rouvre l’annuaire depuis le hub':'Connexion impossible pour le moment';drawSync()}}
 function drawSync(run){const el=$('sync');
   if(!sbOn()){el.innerHTML=`<span class="led" style="background:#cbd5e1"></span><div class="st2"><b>Pas encore activée</b><small>Pour l’instant, chaque appareil garde ses propres cartes. Utilise la sauvegarde ci-dessous pour les transférer.</small></div>`;return}
-  if(!SY.ses){el.innerHTML=`<span class="led" style="background:#f59e0b"></span><div class="st2"><b>Non connecté sur cet appareil</b><small>Connecte-toi une fois pour partager l’annuaire avec l’équipe et le retrouver sur ton téléphone et ton ordi.</small></div><button class="btn p" id="sIn">Se connecter</button>`;$('sIn').onclick=()=>{$('lS').textContent='';openM('mdL');$('lE').focus()};return}
+  const nm=`<div class="f" style="width:100%;margin-top:6px"><label for="meN">Ton prénom <span style="font-weight:500;color:var(--muted)">(pour savoir qui a ajouté chaque carte)</span></label><div class="in" style="max-width:320px"><input id="meN" value="${esc(ME())}" placeholder="Ex. Enzo"></div></div>`;
+  const bindNm=()=>{const i=$('meN');if(i)i.onchange=()=>{try{localStorage.setItem('airflux_me',i.value.trim())}catch(e){}drawFl();drawGrid();toast('Prénom enregistré')}};
+  if(!SY.ses){el.innerHTML=`<span class="led" style="background:${SY.err?'#ef4444':'#f59e0b'}"></span><div class="st2"><b>${SY.err?esc(SY.err):'En attente du hub'}</b><small>Ouvre l’annuaire depuis le hub une fois sur cet appareil : l’annuaire de l’équipe se chargera tout seul.</small></div><a class="btn g" href="../">Aller au hub</a>`+nm;bindNm();return}
   const n=SY.pend.length+SY.dels.length;
-  el.innerHTML=`<span class="led" style="background:${SY.err?'#ef4444':n||run?'#f59e0b':'#22c55e'}"></span><div class="st2"><b>${run?'Synchronisation…':SY.err?esc(SY.err):n?n+' modification'+(n>1?'s':'')+' à envoyer':'Synchronisé'}</b><small>${esc(SY.ses.email||'')}${SY.at?' · dernière synchro '+ago(SY.at):''}</small></div><button class="btn g" id="sNow">Synchroniser</button><button class="btn g" id="sOut">Se déconnecter</button>`;
-  $('sNow').onclick=sync;$('sOut').onclick=()=>{if(Date.now()-(drawSync.o||0)>3000){drawSync.o=Date.now();toast('Clique encore une fois pour te déconnecter');return}SY.ses=null;sSave();drawSync();toast('Déconnecté. Les cartes restent sur cet appareil.')}}
-$('lOk').onclick=async()=>{const em=$('lE').value.trim(),pw=$('lP').value;if(!em||!pw){$('lS').textContent='Indique ton e-mail et ton mot de passe';return}
-  $('lOk').disabled=true;$('lS').textContent='Connexion…';
-  try{await auth({email:em,password:pw},'password');$('lP').value='';SY.last='';for(const c of L){if(!c.par){c.par=SY.ses.email;await dbPut(c)}if(!SY.pend.includes(c.id))SY.pend.push(c.id)}sSave();closeM('mdL');toast('Connecté, synchronisation en cours');sync()}
-  catch(e){$('lS').textContent=e.status===400?'E-mail ou mot de passe incorrect':'Connexion impossible pour le moment'}
-  $('lOk').disabled=false};
-$('lP').addEventListener('keydown',e=>{if(e.key==='Enter')$('lOk').click()});
+  el.innerHTML=`<span class="led" style="background:${SY.err?'#ef4444':n||run?'#f59e0b':'#22c55e'}"></span><div class="st2"><b>${run?'Synchronisation…':SY.err?esc(SY.err):n?n+' modification'+(n>1?'s':'')+' à envoyer':'Annuaire de l’équipe à jour'}</b><small>${SY.at?'Dernière synchro '+ago(SY.at):''}</small></div><button class="btn g" id="sNow">Synchroniser</button>`+nm;
+  $('sNow').onclick=sync;bindNm()}
 addEventListener('online',syncSoon);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncSoon()});
 setInterval(()=>{if(document.visibilityState==='visible')sync()},120000);
 
 /* ---------- Démarrage ---------- */
 (async()=>{try{DB=await openDB();L=await dbAll()}catch(e){toast('Stockage indisponible sur ce navigateur')}
-  drawFl();drawGrid();drawSync();sync();
+  drawFl();drawGrid();drawSync();if(SY.ses)sync();else autoLogin();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});})();
 
 })();
