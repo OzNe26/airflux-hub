@@ -1,4 +1,29 @@
 {
- "maj": null,
- "docs": []
+ "maj": "2026-11-18",
+ "docs": [
+  {
+   "id": "10-raisons",
+   "titre": "Les 10 bonnes raisons de choisir Airflux",
+   "cat": "presentation",
+   "type": "lien",
+   "url": "10-raisons/",
+   "desc": "Proximité, multimarques, solutions complémentaires, énergie, clé en main, Second Air, location, services, contrats, AF Connect.",
+   "tags": [
+    "Argumentaire",
+    "Plaquette"
+   ]
+  },
+  {
+   "id": "contrats",
+   "titre": "Contrats de maintenance",
+   "cat": "contrats",
+   "type": "lien",
+   "url": "contrats/",
+   "desc": "Les 5 formules (Prévoyance → Excellence), le comparatif des prestations et les 5 options.",
+   "tags": [
+    "Maintenance",
+    "Comparatif"
+   ]
+  }
+ ]
 }

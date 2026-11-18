@@ -286,7 +286,7 @@ function card(d){
     <div style="display:flex;gap:8px;align-items:flex-start"><div class="nm" style="flex:1">${esc(d.titre)}</div><button class="star${fv?' on':''}" data-f="${esc(id)}" title="Favori">★</button></div>
     ${d.desc?`<div class="ds">${esc(d.desc)}</div>`:''}
     ${(d.tags||[]).length||d.maj?`<div class="tg">${(d.tags||[]).map(x=>`<span>${esc(x)}</span>`).join('')}${d.maj?`<span style="background:none;color:var(--muted)">màj ${esc(d.maj)}</span>`:''}</div>`:''}
-    <div class="ac"><a class="mini p" href="${esc(d.url)}" target="_blank" rel="noopener">Ouvrir</a><button class="mini" data-c="${esc(d.url)}">Copier le lien</button></div>
+    <div class="ac"><a class="mini p" href="${esc(d.url)}"${/^https?:/.test(d.url)?' target="_blank" rel="noopener"':''}>Ouvrir</a><button class="mini" data-c="${esc(new URL(d.url,location.href).href)}">Copier le lien</button></div>
   </div></div>`;
 }
 function draw(){
