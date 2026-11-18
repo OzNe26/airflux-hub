@@ -599,7 +599,7 @@ $('xRes').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)r
 
 /* ---------- Synchronisation (Supabase) ---------- */
 const SB={url:'',key:''};
-const SKEY='airflux_annuaire_sync_v1';
+const SKEY='airflux_annuaire_sync_v1',TB='airflux_cartes';
 let SY={ses:null,last:'',pend:[],dels:[],at:'',err:''};
 try{SY=Object.assign(SY,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){}
 const sSave=()=>{try{localStorage.setItem(SKEY,JSON.stringify(SY))}catch(e){}};
@@ -614,10 +614,10 @@ const strip=c=>{const d=Object.assign({},c);delete d.i1;delete d.i2;delete d.id;
 let busy=false,again=false;
 async function sync(){if(!sbOn()||!SY.ses)return;if(busy){again=true;return}busy=true;SY.err='';drawSync('run');
   try{
-    for(const d of SY.dels.slice()){await api('cartes?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:d.id,data:{},i1:null,i2:null,up:d.up,deleted:true}])});SY.dels=SY.dels.filter(x=>x.id!==d.id);sSave()}
-    for(const id of SY.pend.slice()){const c=L.find(x=>x.id===id);if(c)await api('cartes?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:c.id,data:strip(c),i1:c.i1||null,i2:c.i2||null,up:c.up||c.cr||new Date().toISOString(),deleted:false}])});SY.pend=SY.pend.filter(x=>x!==id);sSave()}
+    for(const d of SY.dels.slice()){await api(TB+'?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:d.id,data:{},i1:null,i2:null,up:d.up,deleted:true}])});SY.dels=SY.dels.filter(x=>x.id!==d.id);sSave()}
+    for(const id of SY.pend.slice()){const c=L.find(x=>x.id===id);if(c)await api(TB+'?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:c.id,data:strip(c),i1:c.i1||null,i2:c.i2||null,up:c.up||c.cr||new Date().toISOString(),deleted:false}])});SY.pend=SY.pend.filter(x=>x!==id);sSave()}
     let ch=0,more=true;
-    while(more){const rows=await api('cartes?select=id,data,i1,i2,up,deleted,srv&order=srv.asc&limit=20'+(SY.last?'&srv=gt.'+encodeURIComponent(SY.last):''))||[];more=rows.length===20;
+    while(more){const rows=await api(TB+'?select=id,data,i1,i2,up,deleted,srv&order=srv.asc&limit=20'+(SY.last?'&srv=gt.'+encodeURIComponent(SY.last):''))||[];more=rows.length===20;
       for(const r of rows){const ex=L.find(x=>x.id===r.id);
         if(r.deleted){if(ex&&(ex.up||'')<=r.up&&!SY.pend.includes(r.id)){await dbDel(r.id);L=L.filter(x=>x.id!==r.id);ch++}}
         else if(!ex||((ex.up||'')<r.up&&!SY.pend.includes(r.id))){const c=Object.assign({},r.data,{id:r.id,i1:r.i1||null,i2:r.i2||null,up:r.up});await dbPut(c);if(ex)L[L.indexOf(ex)]=c;else L.push(c);ch++}
