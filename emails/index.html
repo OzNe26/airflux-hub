@@ -124,22 +124,64 @@ async function copyText(t,msg){
 })();
 
 const SIG='Enzo Drouot\nAirflux\n{tel}';
+const CR='Je vous propose un court échange téléphonique le {creneau1} ou le {creneau2}. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.';
+const END='\n\nBien cordialement,\n\n'+SIG;
 const T=[
-{id:'rdv',n:'Confirmation de rendez-vous',d:'Après un appel réussi',f:['date','heure','lieu'],
- s:'Confirmation de notre rendez-vous du {date}',
- b:'{bonjour}\n\nSuite à notre échange téléphonique, je vous confirme notre rendez-vous le {date} à {heure}, {lieu}.\n\nCe sera l’occasion de faire le point sur vos installations d’air comprimé et sur vos besoins en matière d’entretien et de maintenance.\n\nN’hésitez pas à me contacter si vous avez besoin de modifier ce rendez-vous.\n\nBien cordialement,\n\n'+SIG},
-{id:'doc',n:'Envoi de documentation',d:'Le prospect demande un mail',f:['sujet','rappel'],
- s:'Airflux – Documentation {sujet}',
- b:'{bonjour}\n\nComme convenu lors de notre échange, vous trouverez ci-joint notre documentation concernant {sujet}.\n\nAirflux accompagne les entreprises sur l’ensemble de leurs besoins en air comprimé : installation, maintenance et réseaux d’air.\n\nComme convenu, je me permettrai de vous rappeler {rappel} pour recueillir votre avis et répondre à vos questions.\n\nBien cordialement,\n\n'+SIG},
-{id:'relance',n:'Relance après appel',d:'Pas de réponse depuis le dernier contact',f:['dateAppel'],
- s:'Suite à notre échange du {dateAppel}',
- b:'{bonjour}\n\nJe me permets de revenir vers vous suite à notre échange du {dateAppel} au sujet de vos installations d’air comprimé.\n\nAvez-vous eu l’occasion d’y réfléchir ? Je serais ravi de convenir d’un rendez-vous, sur site ou par téléphone, pour faire le point sur vos besoins.\n\nSeriez-vous disponible en début de semaine prochaine ?\n\nBien cordialement,\n\n'+SIG},
-{id:'apres',n:'Remerciement après rendez-vous',d:'Le lendemain de la visite',f:['dateRdv','points','suite'],
- s:'Merci pour notre rendez-vous du {dateRdv}',
- b:'{bonjour}\n\nMerci pour le temps que vous m’avez accordé lors de notre rendez-vous du {dateRdv}.\n\nComme évoqué, voici les points que nous avons abordés :\n{points}\n\nProchaine étape : {suite}.\n\nJe reste à votre disposition pour toute question.\n\nBien cordialement,\n\n'+SIG},
-{id:'prospection',n:'Prospection par e-mail',d:'Premier contact, sans appel avant',f:['creneau1','creneau2'],
- s:'Airflux – vos installations d’air comprimé',
- b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé depuis plus de 40 ans : installation, maintenance, dépannage et réseaux d’air.\n\nNous accompagnons de nombreuses entreprises sur l’entretien de leurs compresseurs, la réduction de leurs fuites et de leur consommation d’énergie, avec des techniciens proches de chez vous.\n\nPourriez-vous m’indiquer si vous êtes la bonne personne pour ces sujets ? Si c’est le cas, je vous propose un court échange de 10 minutes le {creneau1} ou le {creneau2}, pour mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\nSinon, je vous serais reconnaissant de me transmettre le contact de la personne en charge.\n\nBien cordialement,\n\n'+SIG},
+{id:'rdv',n:'Confirmation de rendez-vous',d:'Après un appel réussi : 3 situations',f:[],v:[
+ {id:'site',n:'Sur site',f:['date','heure','lieu'],
+  s:'Confirmation de notre rendez-vous du {date}',
+  b:'{bonjour}\n\nSuite à notre échange téléphonique, je vous confirme notre rendez-vous le {date} à {heure}, {lieu}.\n\nCe sera l’occasion de faire le point sur vos installations d’air comprimé et sur vos besoins en matière d’entretien et de maintenance. Si possible, prévoyez un accès à votre local compresseur afin que nous puissions voir l’installation ensemble.\n\nN’hésitez pas à me contacter si vous avez besoin de modifier ce rendez-vous.'+END},
+ {id:'tel',n:'Par téléphone',f:['date','heure'],
+  s:'Confirmation de notre échange téléphonique du {date}',
+  b:'{bonjour}\n\nComme convenu, je vous confirme notre échange téléphonique le {date} à {heure}. Je vous appellerai directement sur votre ligne.\n\nNous ferons le point sur vos installations d’air comprimé : compresseurs en place, entretien actuel et éventuels projets. Comptez une quinzaine de minutes.\n\nSi l’horaire ne vous convient plus, n’hésitez pas à me le dire.'+END},
+ {id:'visio',n:'En visio',f:['date','heure','lienVisio'],
+  s:'Confirmation de notre visio du {date}',
+  b:'{bonjour}\n\nJe vous confirme notre rendez-vous en visioconférence le {date} à {heure}.\n\nLien de connexion : {lienVisio}\n\nNous ferons le point sur vos installations d’air comprimé et sur vos besoins en matière d’entretien et de maintenance.\n\nN’hésitez pas à me contacter si vous avez besoin de modifier ce rendez-vous.'+END}
+]},
+{id:'doc',n:'Envoi de documentation',d:'Le prospect demande un mail : 3 situations',f:[],v:[
+ {id:'gen',n:'Présentation Airflux',f:['rappel'],
+  s:'Airflux – Présentation',
+  b:'{bonjour}\n\nComme convenu lors de notre échange, vous trouverez ci-joint notre présentation.\n\nAirflux accompagne les entreprises sur l’ensemble de leurs besoins en air comprimé : vente et installation de compresseurs, maintenance, dépannage, réseaux d’air et traitement de l’air.\n\nComme convenu, je me permettrai de vous rappeler {rappel} pour recueillir votre avis et répondre à vos questions.'+END},
+ {id:'contrats',n:'Contrats de maintenance',f:['rappel'],
+  s:'Airflux – Nos contrats de maintenance',
+  b:'{bonjour}\n\nComme convenu, vous trouverez ci-joint la présentation de nos contrats de maintenance.\n\nNous proposons cinq formules, du simple contrôle annuel (Prévoyance) jusqu’à la garantie totale de votre compresseur (Excellence), avec des options comme l’astreinte ou le prêt de machine. L’objectif est de trouver la formule adaptée à votre installation et à votre niveau d’exigence.\n\nJe me permettrai de vous rappeler {rappel} pour en discuter et, si vous le souhaitez, organiser une visite pour vous faire une proposition sur mesure.'+END},
+ {id:'sujet',n:'Sujet précis',f:['sujet','rappel'],
+  s:'Airflux – Documentation {sujet}',
+  b:'{bonjour}\n\nComme convenu lors de notre échange, vous trouverez ci-joint notre documentation concernant {sujet}.\n\nAirflux accompagne les entreprises sur l’ensemble de leurs besoins en air comprimé : installation, maintenance et réseaux d’air.\n\nComme convenu, je me permettrai de vous rappeler {rappel} pour recueillir votre avis et répondre à vos questions.'+END}
+]},
+{id:'relance',n:'Relance après appel',d:'Pas de réponse : 1re, 2e, dernière',f:[],v:[
+ {id:'r1',n:'1re relance',f:['dateAppel','creneau1','creneau2'],
+  s:'Suite à notre échange du {dateAppel}',
+  b:'{bonjour}\n\nJe me permets de revenir vers vous suite à notre échange du {dateAppel} au sujet de vos installations d’air comprimé.\n\nAvez-vous eu l’occasion d’y réfléchir ? Je serais ravi de convenir d’un rendez-vous, sur site ou par téléphone, pour faire le point sur vos besoins.\n\n'+CR+END},
+ {id:'r2',n:'2e relance',f:['dateAppel','creneau1','creneau2'],
+  s:'Re : Suite à notre échange du {dateAppel}',
+  b:'{bonjour}\n\nJe reviens vers vous au sujet de mon précédent message, resté sans réponse. Je sais que vos journées sont chargées.\n\nUn simple échange de 10 minutes suffirait pour voir si Airflux peut vous être utile, que ce soit pour l’entretien de vos compresseurs, un projet à venir ou un simple contrôle.\n\n'+CR+END},
+ {id:'r3',n:'Dernière relance',f:['dateAppel'],
+  s:'Dernière prise de contact',
+  b:'{bonjour}\n\nSans retour de votre part suite à notre échange du {dateAppel}, je suppose que le sujet n’est pas prioritaire pour vous en ce moment, et je ne souhaite pas vous déranger davantage.\n\nJe vous laisse mes coordonnées : le jour où vous aurez un besoin en air comprimé (panne, entretien, nouveau compresseur), n’hésitez pas à me contacter directement au {tel}.\n\nJe vous souhaite une bonne continuation.'+END}
+]},
+{id:'apres',n:'Remerciement après rendez-vous',d:'Le lendemain de la visite : 3 situations',f:[],v:[
+ {id:'devis',n:'Devis à suivre',f:['dateRdv','points','delai'],
+  s:'Merci pour notre rendez-vous du {dateRdv}',
+  b:'{bonjour}\n\nMerci pour le temps que vous m’avez accordé lors de notre rendez-vous du {dateRdv}.\n\nComme évoqué, voici les points que nous avons abordés :\n{points}\n\nComme convenu, je vous fais parvenir notre proposition {delai}. Je reste à votre disposition d’ici là pour toute question.'+END},
+ {id:'etude',n:'Suite à définir',f:['dateRdv','points','suite'],
+  s:'Merci pour notre rendez-vous du {dateRdv}',
+  b:'{bonjour}\n\nMerci pour le temps que vous m’avez accordé lors de notre rendez-vous du {dateRdv}.\n\nComme évoqué, voici les points que nous avons abordés :\n{points}\n\nProchaine étape : {suite}.\n\nJe reste à votre disposition pour toute question.'+END},
+ {id:'plustard',n:'Pas de besoin pour l’instant',f:['dateRdv','quandRappel'],
+  s:'Merci pour notre rendez-vous du {dateRdv}',
+  b:'{bonjour}\n\nMerci pour le temps que vous m’avez accordé lors de notre rendez-vous du {dateRdv}.\n\nJ’ai bien compris que vous n’aviez pas de besoin immédiat. Comme convenu, je me permettrai de reprendre contact avec vous {quandRappel} pour faire le point.\n\nD’ici là, en cas de panne ou de question sur vos installations, n’hésitez pas à me contacter au {tel}.'+END}
+]},
+{id:'prospection',n:'Prospection par e-mail',d:'Premier contact : 3 angles',f:[],v:[
+ {id:'gen',n:'Présentation générale',f:['creneau1','creneau2'],
+  s:'Airflux – vos installations d’air comprimé',
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé depuis plus de 40 ans : installation, maintenance, dépannage et réseaux d’air.\n\nNous accompagnons de nombreuses entreprises sur l’entretien de leurs compresseurs, la réduction de leurs fuites et de leur consommation d’énergie, avec des techniciens proches de chez vous.\n\nPourriez-vous m’indiquer si vous êtes la bonne personne pour ces sujets ? Si c’est le cas, je vous propose un court échange de 10 minutes le {creneau1} ou le {creneau2}, pour mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\nSinon, je vous serais reconnaissant de me transmettre le contact de la personne en charge.'+END},
+ {id:'maint',n:'Maintenance',f:['creneau1','creneau2'],
+  s:'L’entretien de vos compresseurs',
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nUn compresseur mal entretenu, c’est un risque d’arrêt de production et une consommation d’énergie qui grimpe. Nos techniciens interviennent sur toutes les marques, avec des contrats de maintenance adaptés à chaque installation, du simple contrôle annuel à la garantie totale.\n\nComment est entretenue votre installation aujourd’hui ? Je vous propose d’en parler quelques minutes le {creneau1} ou le {creneau2}.\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable maintenance ?'+END},
+ {id:'eco',n:'Économies d’énergie',f:['creneau1','creneau2'],
+  s:'Réduire la facture d’énergie de votre air comprimé',
+  b:'{bonjour}\n\nJe me permets de vous contacter au nom d’Airflux, spécialiste de l’air comprimé.\n\nL’air comprimé représente souvent une part importante de la consommation électrique d’un site industriel, et une bonne partie se perd en fuites ou dans des compresseurs mal réglés. Nous aidons les entreprises à repérer ces pertes et à les réduire : recherche de fuites, réglages, remplacement par du matériel plus économe.\n\nSeriez-vous ouvert à un court échange le {creneau1} ou le {creneau2} pour voir ce qu’il en est chez vous ?\n\nSi vous n’êtes pas la bonne personne, pourriez-vous me transmettre le contact du responsable concerné ?'+END}
+]},
 {id:'ancien',n:'Ancien client',d:'Reprendre contact : 3 situations',f:[],
  v:[
  {id:'travaux',n:'Travaux réalisés',f:['historique','creneau1','creneau2'],
@@ -152,17 +194,38 @@ const T=[
   s:'Airflux – reprendre contact',
   b:'{bonjour}\n\nNous avions eu l’occasion d’échanger {rencontre}, mais nous n’avons pas encore travaillé ensemble.\n\nJe me permets de revenir vers vous pour faire connaissance plus concrètement : comment sont aujourd’hui entretenues vos installations d’air comprimé ? Airflux peut vous accompagner sur la maintenance de vos compresseurs, les réseaux d’air, la recherche de fuites ou le remplacement de matériel.\n\nJe vous propose un court échange de 10 minutes le {creneau1} ou le {creneau2}. Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.\n\nBien cordialement,\n\n'+SIG}
  ]},
-{id:'injoignable',n:'Prospect injoignable',d:'Plusieurs appels sans réponse',f:['creneau1','creneau2'],
- s:'Vos installations d’air comprimé',
- b:'{bonjour}\n\nJ’ai essayé de vous joindre à plusieurs reprises, sans succès. Je me permets donc de vous écrire.\n\nJe souhaitais échanger avec vous au sujet de vos installations d’air comprimé et de leur maintenance, pour voir comment Airflux pourrait vous accompagner.\n\nJe vous propose un court échange téléphonique de 10 minutes le {creneau1} ou le {creneau2}.\n\nSi aucun de ces créneaux ne vous convient, n’hésitez pas à m’indiquer celui qui vous arrange, ou à me joindre directement au {tel}.\n\nBien cordialement,\n\n'+SIG},
-{id:'contact',n:'Nouveau contact recommandé',d:'Quelqu’un t’a orienté vers lui',f:['recommandePar'],
- s:'De la part de {recommandePar} – air comprimé',
- b:'{bonjour}\n\n{recommandePar} m’a indiqué que vous étiez en charge des installations d’air comprimé et de leur maintenance.\n\nJe souhaiterais échanger avec vous quelques minutes pour mieux comprendre votre fonctionnement et voir si Airflux pourrait vous accompagner sur vos futurs projets ou sur l’entretien de vos équipements.\n\nSeriez-vous disponible pour un court échange téléphonique cette semaine ?\n\nBien cordialement,\n\n'+SIG},
-{id:'devis',n:'Relance de devis',d:'Une offre est en attente',f:['refDevis','dateDevis'],
- s:'Votre devis {refDevis}',
- b:'{bonjour}\n\nJe me permets de revenir vers vous concernant notre offre {refDevis}, transmise le {dateDevis}.\n\nAvez-vous pu en prendre connaissance ? Je suis à votre disposition pour en discuter, l’ajuster si nécessaire ou répondre à vos questions.\n\nBien cordialement,\n\n'+SIG}
+{id:'injoignable',n:'Prospect injoignable',d:'Appels sans réponse : 2 situations',f:[],v:[
+ {id:'m1',n:'1er mail',f:['creneau1','creneau2'],
+  s:'Vos installations d’air comprimé',
+  b:'{bonjour}\n\nJ’ai essayé de vous joindre à plusieurs reprises, sans succès. Je me permets donc de vous écrire.\n\nJe souhaitais échanger avec vous au sujet de vos installations d’air comprimé et de leur maintenance, pour voir comment Airflux pourrait vous accompagner.\n\nJe vous propose un court échange téléphonique de 10 minutes le {creneau1} ou le {creneau2}.\n\nSi aucun de ces créneaux ne vous convient, n’hésitez pas à m’indiquer celui qui vous arrange, ou à me joindre directement au {tel}.'+END},
+ {id:'m2',n:'Dernier essai',f:[],
+  s:'Re : Vos installations d’air comprimé',
+  b:'{bonjour}\n\nJe n’ai pas réussi à vous joindre ces dernières semaines et je ne souhaite pas insister.\n\nUne simple réponse à ce mail me suffit : est-ce un sujet pour vous en ce moment, ou faut-il que je revienne vers vous plus tard ? Et si vous n’êtes pas la bonne personne, pourriez-vous m’indiquer qui contacter ?\n\nVous pouvez aussi me joindre directement au {tel}.'+END}
+]},
+{id:'contact',n:'Nouveau contact recommandé',d:'Quelqu’un t’a orienté : 3 situations',f:[],v:[
+ {id:'collegue',n:'Par un de ses collègues',f:['recommandePar','creneau1','creneau2'],
+  s:'De la part de {recommandePar} – air comprimé',
+  b:'{bonjour}\n\n{recommandePar} m’a indiqué que vous étiez en charge des installations d’air comprimé et de leur maintenance.\n\nJe souhaiterais échanger avec vous quelques minutes pour mieux comprendre votre fonctionnement et voir si Airflux pourrait vous accompagner sur vos futurs projets ou sur l’entretien de vos équipements.\n\n'+CR+END},
+ {id:'standard',n:'Par le standard',f:['creneau1','creneau2'],
+  s:'Vos installations d’air comprimé',
+  b:'{bonjour}\n\nVotre accueil m’a indiqué que vous étiez la personne en charge des installations d’air comprimé et de leur maintenance, et m’a transmis votre adresse.\n\nJe me présente : je travaille pour Airflux, spécialiste de l’air comprimé (installation, maintenance, dépannage, réseaux d’air). Je souhaiterais échanger avec vous quelques minutes pour mieux comprendre votre installation et voir si nous pouvons vous être utiles.\n\n'+CR+END},
+ {id:'client',n:'Par un client Airflux',f:['recommandePar','creneau1','creneau2'],
+  s:'De la part de {recommandePar}',
+  b:'{bonjour}\n\n{recommandePar}, avec qui nous travaillons sur l’entretien de leurs installations d’air comprimé, m’a suggéré de vous contacter.\n\nJe souhaiterais échanger avec vous quelques minutes pour voir si Airflux pourrait également vous accompagner, que ce soit pour la maintenance de vos compresseurs ou un projet à venir.\n\n'+CR+END}
+]},
+{id:'devis',n:'Relance de devis',d:'Une offre en attente : 3 situations',f:[],v:[
+ {id:'d1',n:'1re relance',f:['refDevis','dateDevis'],
+  s:'Votre devis {refDevis}',
+  b:'{bonjour}\n\nJe me permets de revenir vers vous concernant notre offre {refDevis}, transmise le {dateDevis}.\n\nAvez-vous pu en prendre connaissance ? Je suis à votre disposition pour en discuter, l’ajuster si nécessaire ou répondre à vos questions.'+END},
+ {id:'d2',n:'Avant expiration',f:['refDevis','dateDevis','validite'],
+  s:'Votre devis {refDevis} – validité jusqu’au {validite}',
+  b:'{bonjour}\n\nPour rappel, notre offre {refDevis} transmise le {dateDevis} est valable jusqu’au {validite}.\n\nSi elle vous convient, il vous suffit de nous la retourner signée. Si certains points sont à revoir, je peux tout à fait l’adapter : dites-moi simplement ce qui vous pose question.'+END},
+ {id:'d3',n:'Dernière relance',f:['refDevis','dateDevis'],
+  s:'Votre devis {refDevis} – où en êtes-vous ?',
+  b:'{bonjour}\n\nJe reviens une dernière fois vers vous au sujet de notre offre {refDevis} du {dateDevis}.\n\nLe projet a peut-être été reporté ou confié à un autre prestataire : dans tous les cas, un petit retour de votre part m’aiderait à mettre à jour votre dossier. Et si le besoin revient plus tard, je serai ravi d’actualiser l’offre.'+END}
+]}
 ];
-const FL={nom:['Nom du contact','Ex. Dupont'],societe:['Société','Ex. Société X'],tel:['Ton téléphone','06 …'],date:['Date du rendez-vous','Ex. mardi 24 novembre'],heure:['Heure','Ex. 10 h'],lieu:['Lieu','Ex. sur votre site de Reims'],sujet:['Sujet de la documentation','Ex. la maintenance de vos compresseurs'],rappel:['Date de rappel','Ex. jeudi'],dateAppel:['Date du dernier appel','Ex. 12 novembre'],dateRdv:['Date du rendez-vous','Ex. 18 novembre'],points:['Points abordés','- …\n- …'],suite:['Prochaine étape','Ex. envoi d’une offre d’ici vendredi'],recommandePar:['Recommandé par','Ex. M. Martin'],historique:['Ce que vous aviez fait ensemble','Ex. la maintenance de votre compresseur en 2023'],objetDevis:['Objet du devis','Ex. le remplacement de votre compresseur'],dateDevis2:['Quand le devis a été envoyé','Ex. en mars 2025'],rencontre:['Où / quand vous vous étiez rencontrés','Ex. lors de ma visite sur votre site en 2024'],creneau1:['Créneau proposé 1','Ex. mardi 24 novembre à 10 h'],creneau2:['Créneau proposé 2','Ex. jeudi 26 novembre à 14 h'],refDevis:['Référence du devis','Ex. D-2026-045'],dateDevis:['Date d’envoi du devis','Ex. 5 novembre']};
+const FL={nom:['Nom du contact','Ex. Dupont'],societe:['Société','Ex. Société X'],tel:['Ton téléphone','06 …'],date:['Date du rendez-vous','Ex. mardi 24 novembre'],heure:['Heure','Ex. 10 h'],lieu:['Lieu','Ex. sur votre site de Reims'],sujet:['Sujet de la documentation','Ex. la maintenance de vos compresseurs'],rappel:['Date de rappel','Ex. jeudi'],dateAppel:['Date du dernier appel','Ex. 12 novembre'],dateRdv:['Date du rendez-vous','Ex. 18 novembre'],points:['Points abordés','- …\n- …'],suite:['Prochaine étape','Ex. envoi d’une offre d’ici vendredi'],recommandePar:['Recommandé par','Ex. M. Martin'],historique:['Ce que vous aviez fait ensemble','Ex. la maintenance de votre compresseur en 2023'],objetDevis:['Objet du devis','Ex. le remplacement de votre compresseur'],dateDevis2:['Quand le devis a été envoyé','Ex. en mars 2025'],rencontre:['Où / quand vous vous étiez rencontrés','Ex. lors de ma visite sur votre site en 2024'],lienVisio:['Lien de la visio','Ex. lien Teams'],delai:['Délai de la proposition','Ex. d’ici vendredi'],quandRappel:['Quand tu le recontactes','Ex. au printemps'],validite:['Date de fin de validité','Ex. 15 décembre'],creneau1:['Créneau proposé 1','Ex. mardi 24 novembre à 10 h'],creneau2:['Créneau proposé 2','Ex. jeudi 26 novembre à 14 h'],refDevis:['Référence du devis','Ex. D-2026-045'],dateDevis:['Date d’envoi du devis','Ex. 5 novembre']};
 const KEY='airflux_emails_v1';
 let S={t:'rdv',civ:'Monsieur',v:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}
