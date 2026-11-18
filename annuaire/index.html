@@ -273,6 +273,12 @@ main{display:block!important}
 .zoom.on{display:flex}
 .zoom img{max-width:100%;max-height:100%;border-radius:8px}
 .bk{margin-top:18px}
+.sync{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px}
+.sync .st2{flex:1;min-width:220px;line-height:1.5}
+.sync .st2 b{display:block}
+.sync .st2 small{color:var(--muted);font-size:12.5px}
+.sync .led{width:12px;height:12px;border-radius:50%;flex:none}
+.sync .btn{padding:10px 14px}
 @media (max-width:600px){.tool .btn{flex:1 1 40%;padding:11px 10px}}
 @media (max-width:760px){.ed,.dv{grid-template-columns:minmax(0,1fr)}.frm{grid-template-columns:1fr}.mbox{padding:18px 14px}.md{padding:10px 6px}.acts3{grid-template-columns:1fr}}
 </style>
@@ -302,6 +308,10 @@ main{display:block!important}
   <div class="fl" id="fl"></div>
 </div>
 <div class="grid" id="grid"></div>
+<div class="card bk" id="syncCard">
+  <h2>Synchronisation entre tes appareils</h2>
+  <div class="sync" id="sync"></div>
+</div>
 <div class="card bk">
   <h2>Exporter et sauvegarder</h2>
   <div class="tool">
@@ -358,6 +368,16 @@ main{display:block!important}
 <div class="md" id="mdV"><div class="mbox">
   <button class="mx" data-close>×</button>
   <div class="dv" id="dv"></div>
+</div></div>
+<div class="md" id="mdL"><div class="mbox" style="max-width:420px">
+  <button class="mx" data-close>×</button>
+  <h3>Connexion à la synchronisation</h3>
+  <div class="frm" style="grid-template-columns:1fr">
+    <div class="f"><label>E-mail</label><div class="in"><input id="lE" type="email" autocomplete="username"></div></div>
+    <div class="f"><label>Mot de passe</label><div class="in"><input id="lP" type="password" autocomplete="current-password"></div></div>
+  </div>
+  <div class="ocrs" id="lS" style="margin-top:8px"></div>
+  <div class="mf"><span></span><div class="r"><button class="btn g" data-close type="button">Annuler</button><button class="btn p" id="lOk" type="button">Se connecter</button></div></div>
 </div></div>
 <div class="zoom" id="zoom"><img alt=""></div>
 
@@ -498,7 +518,8 @@ function fillForm(){document.querySelectorAll('[data-f]').forEach(i=>i.value=E[i
   $('tys').innerHTML=Object.entries(TY).map(([k,[l]])=>`<button type="button" class="chip${E.ty===k?' on':''}" data-y="${k}">${l}</button>`).join('');
   document.querySelectorAll('#tys [data-y]').forEach(b=>b.onclick=()=>{E.ty=b.dataset.y;fillForm()});soLink();drawShots()}
 document.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('input',()=>{E[i.dataset.f]=i.value}));
-function edit(id){const c=id?L.find(x=>x.id===id):null;E=c?JSON.parse(JSON.stringify(c)):{id:uid(),ty:'pr',d:iso(new Date())};
+let fromV=false;
+function edit(id){fromV=$('mdV').classList.contains('on');closeM('mdV');const c=id?L.find(x=>x.id===id):null;E=c?JSON.parse(JSON.stringify(c)):{id:uid(),ty:'pr',d:iso(new Date())};
   $('eT').textContent=c?'Modifier la carte':'Nouvelle carte';$('eDel').style.display=c?'':'none';$('ocrS').textContent='';$('raw').textContent=E.raw||'';$('raw').classList.remove('on');$('rawT').style.display=E.raw?'block':'none';
   fillForm();openM('mdE')}
 $('bAdd').onclick=()=>edit(null);
@@ -508,16 +529,16 @@ $('bGal').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!
     try{const c={id:uid(),ty:'pr',d:iso(new Date()),i1:await shrink(fs[i])};
       try{const w=await worker();const r=await w.recognize(c.i1);c.raw=r.data.text;Object.assign(c,Object.fromEntries(Object.entries(parse(c.raw)).filter(([,v])=>v)))}catch(_){}
       const o=OURS.find(p=>norm(p.n)===norm(c.so));if(o){c.ref=o.ref||'';if(['pr','cl','ac'].includes(o.s))c.ty=o.s}
-      c.cr=c.up=new Date().toISOString();await dbPut(c);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
-  toast(ok+' carte'+(ok>1?'s':'')+' ajoutée'+(ok>1?'s':'')+', vérifie-les');};
+      c.cr=c.up=new Date().toISOString();await dbPut(c);mark(c.id);L.push(c);ok++;drawFl();drawGrid()}catch(_){}}
+  syncSoon();toast(ok+' carte'+(ok>1?'s':'')+' ajoutée'+(ok>1?'s':'')+', vérifie-les');};
 $('eOk').onclick=async()=>{if(!fullName(E).trim()&&!(E.so||'').trim()){toast('Indique au moins un nom ou une société');return}
   const o=soLink();if(o&&!E.ref)E.ref=o.ref||'';
   E.up=new Date().toISOString();if(!E.cr)E.cr=E.up;
-  try{await dbPut(E);const i=L.findIndex(x=>x.id===E.id);if(i>=0)L[i]=E;else L.push(E);closeM('mdE');drawFl();drawGrid();toast('Carte enregistrée');if($('mdV').classList.contains('on'))view(E.id)}
+  try{await dbPut(E);mark(E.id);const i=L.findIndex(x=>x.id===E.id);if(i>=0)L[i]=E;else L.push(E);closeM('mdE');drawFl();drawGrid();syncSoon();toast('Carte enregistrée');if(fromV)view(E.id)}
   catch(e){toast('Enregistrement impossible (espace plein ?)')}};
 let delArm=0;
 $('eDel').onclick=async()=>{if(Date.now()-delArm>3000){delArm=Date.now();toast('Clique encore une fois sur Supprimer pour confirmer');return}
-  await dbDel(E.id);L=L.filter(x=>x.id!==E.id);closeM('mdE');closeM('mdV');drawFl();drawGrid();toast('Carte supprimée')};
+  await dbDel(E.id);markDel(E.id);L=L.filter(x=>x.id!==E.id);closeM('mdE');closeM('mdV');drawFl();drawGrid();syncSoon();toast('Carte supprimée')};
 
 /* ---------- Fiche ---------- */
 function vcard(c){const v=s=>String(s||'').trim().replace(/[,;\\]/g,m=>'\\'+m),tel=s=>String(s||'').replace(/[^\d+]/g,'').replace(/^0(\d{9})$/,'+33$1');
@@ -571,13 +592,61 @@ $('xVcf').onclick=()=>{if(!L.length){toast('L’annuaire est vide');return}dl('a
 $('xBak').onclick=()=>{if(!L.length){toast('L’annuaire est vide');return}dl('sauvegarde-annuaire-'+iso(new Date())+'.json','application/json',JSON.stringify({app:'airflux-annuaire',v:1,date:new Date().toISOString(),cartes:L}));toast('Sauvegarde téléchargée')};
 $('xRes').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
   try{const j=JSON.parse(await f.text());if(j.app!=='airflux-annuaire'||!Array.isArray(j.cartes))throw 0;let n=0;
-    for(const c of j.cartes){if(!c||!c.id)continue;const ex=L.find(x=>x.id===c.id);if(ex&&(ex.up||'')>=(c.up||''))continue;await dbPut(c);if(ex)Object.assign(ex,c);else L.push(c);n++}
-    drawFl();drawGrid();toast(n?n+' carte'+(n>1?'s':'')+' restaurée'+(n>1?'s':''):'Rien de nouveau dans cette sauvegarde')}
+    for(const c of j.cartes){if(!c||!c.id)continue;const ex=L.find(x=>x.id===c.id);if(ex&&(ex.up||'')>=(c.up||''))continue;await dbPut(c);mark(c.id);if(ex)Object.assign(ex,c);else L.push(c);n++}
+    drawFl();drawGrid();syncSoon();toast(n?n+' carte'+(n>1?'s':'')+' restaurée'+(n>1?'s':''):'Rien de nouveau dans cette sauvegarde')}
   catch(_){toast('Ce fichier n’est pas une sauvegarde de l’annuaire')}};
+
+
+/* ---------- Synchronisation (Supabase) ---------- */
+const SB={url:'',key:''};
+const SKEY='airflux_annuaire_sync_v1';
+let SY={ses:null,last:'',pend:[],dels:[],at:'',err:''};
+try{SY=Object.assign(SY,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){}
+const sSave=()=>{try{localStorage.setItem(SKEY,JSON.stringify(SY))}catch(e){}};
+const sbOn=()=>!!(SB.url&&SB.key);
+function mark(id){if(!SY.pend.includes(id))SY.pend.push(id);SY.dels=SY.dels.filter(d=>d.id!==id);sSave()}
+function markDel(id){SY.pend=SY.pend.filter(x=>x!==id);if(!SY.dels.some(d=>d.id===id))SY.dels.push({id,up:new Date().toISOString()});sSave()}
+async function auth(body,grant){const r=await fetch(SB.url+'/auth/v1/token?grant_type='+grant,{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error_description||j.msg||j.message||'Erreur de connexion'),{status:r.status});
+  SY.ses={at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),email:(j.user&&j.user.email)||(SY.ses&&SY.ses.email)||''};sSave()}
+async function token(){if(!SY.ses)throw new Error('non connecté');if(SY.ses.exp-90<Date.now()/1000){try{await auth({refresh_token:SY.ses.rt},'refresh_token')}catch(e){if(e.status===400||e.status===401){SY.ses=null;sSave();drawSync()}throw e}}return SY.ses.at}
+async function api(path,opt={}){const t=await token();const r=await fetch(SB.url+'/rest/v1/'+path,Object.assign({},opt,{headers:Object.assign({apikey:SB.key,Authorization:'Bearer '+t,'Content-Type':'application/json'},opt.headers||{})}));if(!r.ok){const tx=await r.text().catch(()=>'');throw new Error('HTTP '+r.status+' '+tx.slice(0,120))}return r.status===204?null:r.json().catch(()=>null)}
+const strip=c=>{const d=Object.assign({},c);delete d.i1;delete d.i2;delete d.id;delete d.raw;return d};
+let busy=false,again=false;
+async function sync(){if(!sbOn()||!SY.ses)return;if(busy){again=true;return}busy=true;SY.err='';drawSync('run');
+  try{
+    for(const d of SY.dels.slice()){await api('cartes?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:d.id,data:{},i1:null,i2:null,up:d.up,deleted:true}])});SY.dels=SY.dels.filter(x=>x.id!==d.id);sSave()}
+    for(const id of SY.pend.slice()){const c=L.find(x=>x.id===id);if(c)await api('cartes?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{id:c.id,data:strip(c),i1:c.i1||null,i2:c.i2||null,up:c.up||c.cr||new Date().toISOString(),deleted:false}])});SY.pend=SY.pend.filter(x=>x!==id);sSave()}
+    let ch=0,more=true;
+    while(more){const rows=await api('cartes?select=id,data,i1,i2,up,deleted,srv&order=srv.asc&limit=20'+(SY.last?'&srv=gt.'+encodeURIComponent(SY.last):''))||[];more=rows.length===20;
+      for(const r of rows){const ex=L.find(x=>x.id===r.id);
+        if(r.deleted){if(ex&&(ex.up||'')<=r.up&&!SY.pend.includes(r.id)){await dbDel(r.id);L=L.filter(x=>x.id!==r.id);ch++}}
+        else if(!ex||((ex.up||'')<r.up&&!SY.pend.includes(r.id))){const c=Object.assign({},r.data,{id:r.id,i1:r.i1||null,i2:r.i2||null,up:r.up});await dbPut(c);if(ex)L[L.indexOf(ex)]=c;else L.push(c);ch++}
+        SY.last=r.srv}
+      sSave()}
+    SY.at=new Date().toISOString();sSave();if(ch){drawFl();drawGrid()}
+  }catch(e){SY.err=navigator.onLine===false?'Hors ligne, la synchro reprendra toute seule':(SY.ses?'Synchro impossible pour le moment':'');console.log(e)}
+  busy=false;drawSync();if(again){again=false;sync()}}
+let st=null;function syncSoon(){clearTimeout(st);st=setTimeout(sync,800)}
+function ago(s){if(!s)return'';const m=Math.round((Date.now()-new Date(s))/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+fmtD(s.slice(0,10))}
+function drawSync(run){const el=$('sync');
+  if(!sbOn()){el.innerHTML=`<span class="led" style="background:#cbd5e1"></span><div class="st2"><b>Pas encore activée</b><small>Pour l’instant, chaque appareil garde ses propres cartes. Utilise la sauvegarde ci-dessous pour les transférer.</small></div>`;return}
+  if(!SY.ses){el.innerHTML=`<span class="led" style="background:#f59e0b"></span><div class="st2"><b>Non connecté sur cet appareil</b><small>Connecte-toi une fois pour retrouver tes cartes sur ton téléphone et ton ordi.</small></div><button class="btn p" id="sIn">Se connecter</button>`;$('sIn').onclick=()=>{$('lS').textContent='';openM('mdL');$('lE').focus()};return}
+  const n=SY.pend.length+SY.dels.length;
+  el.innerHTML=`<span class="led" style="background:${SY.err?'#ef4444':n||run?'#f59e0b':'#22c55e'}"></span><div class="st2"><b>${run?'Synchronisation…':SY.err?esc(SY.err):n?n+' modification'+(n>1?'s':'')+' à envoyer':'Synchronisé'}</b><small>${esc(SY.ses.email||'')}${SY.at?' · dernière synchro '+ago(SY.at):''}</small></div><button class="btn g" id="sNow">Synchroniser</button><button class="btn g" id="sOut">Se déconnecter</button>`;
+  $('sNow').onclick=sync;$('sOut').onclick=()=>{if(Date.now()-(drawSync.o||0)>3000){drawSync.o=Date.now();toast('Clique encore une fois pour te déconnecter');return}SY.ses=null;sSave();drawSync();toast('Déconnecté. Les cartes restent sur cet appareil.')}}
+$('lOk').onclick=async()=>{const em=$('lE').value.trim(),pw=$('lP').value;if(!em||!pw){$('lS').textContent='Indique ton e-mail et ton mot de passe';return}
+  $('lOk').disabled=true;$('lS').textContent='Connexion…';
+  try{await auth({email:em,password:pw},'password');$('lP').value='';SY.last='';L.forEach(c=>{if(!SY.pend.includes(c.id))SY.pend.push(c.id)});sSave();closeM('mdL');toast('Connecté, synchronisation en cours');sync()}
+  catch(e){$('lS').textContent=e.status===400?'E-mail ou mot de passe incorrect':'Connexion impossible pour le moment'}
+  $('lOk').disabled=false};
+$('lP').addEventListener('keydown',e=>{if(e.key==='Enter')$('lOk').click()});
+addEventListener('online',syncSoon);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncSoon()});
+setInterval(()=>{if(document.visibilityState==='visible')sync()},120000);
 
 /* ---------- Démarrage ---------- */
 (async()=>{try{DB=await openDB();L=await dbAll()}catch(e){toast('Stockage indisponible sur ce navigateur')}
-  drawFl();drawGrid();
+  drawFl();drawGrid();drawSync();sync();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});})();
 
 })();
