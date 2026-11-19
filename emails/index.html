@@ -125,7 +125,7 @@ async function copyText(t,msg){
 
 const SIG='Enzo Drouot\nAirflux\n{tel}';
 const CR='{cta}';
-const END='\n\nBien cordialement,\n\n'+SIG;
+const END='\n\nBien cordialement,';
 const T=[
 {id:'rdv',n:'Confirmation de rendez-vous',d:'Après un appel réussi : 3 situations',f:[],v:[
  {id:'site',n:'Sur site',f:['date','heure','lieu'],
@@ -186,13 +186,13 @@ const T=[
  v:[
  {id:'travaux',n:'Déjà travaillé ensemble',f:['historique','cta'],
   s:'{ctaObj}',
-  b:'{bonjour}\n\nNous avons eu le plaisir de travailler ensemble par le passé ({historique}), et je souhaitais prendre de vos nouvelles.\n\nOù en sont vos installations d’air comprimé aujourd’hui ? Vos besoins ont peut-être évolué : nouveau compresseur, extension du réseau, contrat de maintenance ou simple contrôle de vos équipements.\n\n{cta}\n\nAu plaisir d’échanger avec vous,\n\nBien cordialement,\n\n'+SIG},
+  b:'{bonjour}\n\nNous avons eu le plaisir de travailler ensemble par le passé ({historique}), et je souhaitais prendre de vos nouvelles.\n\nOù en sont vos installations d’air comprimé aujourd’hui ? Vos besoins ont peut-être évolué : nouveau compresseur, extension du réseau, contrat de maintenance ou simple contrôle de vos équipements.\n\n{cta}\n\nAu plaisir d’échanger avec vous,\n\nBien cordialement,'},
  {id:'devis',n:'Devis sans suite',f:['objetDevis','dateDevis2','cta'],
   s:'{ctaObj}',
-  b:'{bonjour}\n\nNous vous avions adressé {dateDevis2} une proposition pour {objetDevis}. Nous n’avions pas travaillé ensemble à cette occasion, et je me permets de revenir vers vous pour savoir où vous en êtes aujourd’hui.\n\nVotre installation, vos besoins ou votre prestataire actuel ont peut-être évolué depuis. Si vous le souhaitez, je serais ravi de vous faire une nouvelle proposition, à jour et adaptée à votre situation.\n\n{cta}\n\nBien cordialement,\n\n'+SIG},
+  b:'{bonjour}\n\nNous vous avions adressé {dateDevis2} une proposition pour {objetDevis}. Nous n’avions pas travaillé ensemble à cette occasion, et je me permets de revenir vers vous pour savoir où vous en êtes aujourd’hui.\n\nVotre installation, vos besoins ou votre prestataire actuel ont peut-être évolué depuis. Si vous le souhaitez, je serais ravi de vous faire une nouvelle proposition, à jour et adaptée à votre situation.\n\n{cta}\n\nBien cordialement,'},
  {id:'compte',n:'Rencontré, sans suite',f:['rencontre','cta'],
   s:'Airflux – reprendre contact',
-  b:'{bonjour}\n\nNous avions eu l’occasion d’échanger {rencontre}, mais nous n’avons pas encore travaillé ensemble.\n\nJe me permets de revenir vers vous pour faire connaissance plus concrètement : comment sont aujourd’hui entretenues vos installations d’air comprimé ? Airflux peut vous accompagner sur la maintenance de vos compresseurs, les réseaux d’air, la recherche de fuites ou le remplacement de matériel.\n\n{cta}\n\nBien cordialement,\n\n'+SIG}
+  b:'{bonjour}\n\nNous avions eu l’occasion d’échanger {rencontre}, mais nous n’avons pas encore travaillé ensemble.\n\nJe me permets de revenir vers vous pour faire connaissance plus concrètement : comment sont aujourd’hui entretenues vos installations d’air comprimé ? Airflux peut vous accompagner sur la maintenance de vos compresseurs, les réseaux d’air, la recherche de fuites ou le remplacement de matériel.\n\n{cta}\n\nBien cordialement,'}
  ]},
 {id:'injoignable',n:'Prospect injoignable',d:'Appels sans réponse : 2 situations',f:[],v:[
  {id:'m1',n:'1er mail',f:['cta'],
@@ -263,7 +263,7 @@ function build(tpl,html){
   return tpl.replace(/\{(\w+)\}/g,(m,k)=>{const v=val(k);if(v)return html?esc(v):v;const ph='['+(FL[k]?FL[k][0]:k)+']';return html?`<mark>${esc(ph)}</mark>`:ph});
 }
 function drawFields(){
-  const t=cur(),hasC=t.f.includes('cta'),keys=['nom',...t.f.flatMap(k=>k==='cta'?ctaKeys():[k]),'tel'];
+  const t=cur(),hasC=t.f.includes('cta'),keys=['nom',...t.f.flatMap(k=>k==='cta'?ctaKeys():[k])];if((t.s+t.b+(hasC?ctaTpl():'')).includes('{tel}'))keys.push('tel');
   const bt=base(),va=bt.v?`<div class="full"><span class="lbl">Situation</span><div class="civ" id="var">${bt.v.map(x=>`<button data-v="${x.id}" class="${x.id===(S.var[bt.id]||bt.v[0].id)?'on':''}">${esc(x.n)}</button>`).join('')}</div></div>`+(curV()&&curV().alt?`<div class="full"><span class="lbl">Modèle</span><div class="civ seg" id="mods">${[0,1,2].slice(0,curV().alt.length+1).map(i=>`<button data-m="${i}" class="${i===+(S.mod[modKey()]||0)?'on':''}">Modèle ${i+1}</button>`).join('')}</div></div>`:''):'';
   const seg=(id,arr,on)=>`<div class="civ seg" id="${id}">${arr.map(([k,l])=>`<button data-x="${k}" class="${k===on?'on':''}">${esc(l)}</button>`).join('')}</div>`;
   const ca=hasC?`<div class="full ctab"><span class="lbl">Ce que tu demandes</span>${seg('ctyp',TYP,S.cta.typ)}${seg('cmode',MODE,S.cta.mode)}</div>`:'';
