@@ -283,8 +283,9 @@ async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(
 
 const num=id=>{const v=parseFloat(String($(id).value).replace(/\s/g,'').replace(',','.'));return isFinite(v)?v:NaN};
 const QF={m3min:1000/60,m3h:1000/3600,ls:1,lmin:1/60,cfm:0.471947};
-// Tube acier fileté série moyenne (NF EN 10255 M) : DN, pouce, Ø ext, épaisseur
-const STEEL=[[15,'1/2"',21.3,2.6],[20,'3/4"',26.9,2.6],[25,'1"',33.7,3.2],[32,'1"1/4',42.4,3.2],[40,'1"1/2',48.3,3.2],[50,'2"',60.3,3.6],[65,'2"1/2',76.1,3.6],[80,'3"',88.9,4.0],[100,'4"',114.3,4.5],[125,'5"',139.7,5.0],[150,'6"',165.1,5.0]].map(([dn,inch,od,e])=>({dn,inch,id:+(od-2*e).toFixed(1)}));
+// Tube inox à sertir (1.4401 / 1.4404) : Ø ext × épaisseur, pression max courante selon fabricant
+const TUBES=[[15,1.0],[18,1.0],[22,1.2],[28,1.2],[35,1.5],[42,1.5],[54,1.5],[76.1,2.0],[88.9,2.0],[108,2.0]].map(([od,e])=>({od,e,id:+(od-2*e).toFixed(1),pmax:od<=54?16:10}));
+const lab=t=>'Ø '+NF(t.od,1)+' × '+NF(t.e,1);
 const dpOf=(qc,L,d,pa)=>450*Math.pow(qc,1.85)*L/(Math.pow(d,5)*pa);
 const vOf=(qc,d,pa)=>(qc/1000)*(1.01325/pa)/(Math.PI*Math.pow(d/1000,2)/4);
 let LAST=null;
@@ -294,19 +295,19 @@ function calc(){
   if(!(dp>0)){$('out').innerHTML='<div class="sub2">Indique une perte de charge admissible (0,1 bar conseillé).</div>';LAST=null;return}
   const qc=q*QF[$('qu').value]*(1+m/100),pa=p+1.01325,L=l+le;
   const d=Math.pow(450*Math.pow(qc,1.85)*L/(dp*pa),1/5);
-  const rows=STEEL.map(s=>({...s,dp:dpOf(qc,L,s.id,pa),v:vOf(qc,s.id,pa)}));
-  const best=rows.find(r=>r.id>=d);
+  const rows=TUBES.map(s=>({...s,dp:dpOf(qc,L,s.id,pa),v:vOf(qc,s.id,pa)}));
+  const best=rows.find(r=>r.id>=d&&p<=r.pmax)||null;const bestNoP=rows.find(r=>r.id>=d);
   LAST={q,qu:$('qu').value,p,l,le,m,dp,qc,d,best,L};
   const warn=[];
   if(dp>0.3)warn.push('Une perte de charge de plus de 0,3 bar coûte de l’énergie : chaque bar en plus au compresseur se paie sur la facture.');
-  if(p>16)warn.push('Au-delà de 16 bar, vérifie la tenue en pression du matériau choisi.');
+  if(bestNoP&&!best)warn.push(`À ${NF(p,1)} bar, la pression dépasse ce que supportent la plupart des systèmes inox à sertir pour ce diamètre (16 bar jusqu’au Ø 54, 10 bar au-delà) : vérifie la fiche du fabricant.`);else if(best&&p>10&&rows.some(r=>r.pmax<p))warn.push(`À ${NF(p,1)} bar, les diamètres à partir de 76,1 mm ne conviennent pas sur la plupart des systèmes (10 bar max) : vérifie la fiche du fabricant.`);
   $('out').innerHTML=`<div class="sub2">Diamètre intérieur minimal</div><div class="bigd"><b>${NF(d,1)}</b><span>mm</span></div>
    <div class="sub2">pour ${NF(qc,1)} l/s d’air libre${m?` (marge de ${NF(m)} % comprise)`:''} à ${NF(p,1)} bar, sur ${NF(L)} m, avec ${NF(dp,2)} bar de perte de charge au maximum.</div>
-   ${best?`<div class="pick"><div><div class="k">Tube acier conseillé</div><div class="v">DN ${best.dn} · ${best.inch}</div><div class="d">Ø intérieur ${NF(best.id,1)} mm · perte de charge ${NF(best.dp,3)} bar · vitesse ${NF(best.v,1)} m/s</div></div></div>`:`<div class="warn">Le débit dépasse le plus gros tube du tableau (DN 150). Prévois plusieurs conduites en parallèle ou un réseau en boucle, et fais valider par un technicien.</div>`}
+   ${best?`<div class="pick"><div><div class="k">Tube inox à sertir conseillé</div><div class="v">${lab(best)} mm</div><div class="d">Ø intérieur ${NF(best.id,1)} mm · perte de charge ${NF(best.dp,3)} bar · vitesse ${NF(best.v,1)} m/s</div></div></div>`:(bestNoP?'':`<div class="warn">Le débit dépasse le plus gros tube inox à sertir courant (Ø 108). Prévois un réseau en boucle, plusieurs conduites en parallèle ou un autre matériau, et fais valider par un technicien.</div>`)}
    ${warn.map(w=>`<div class="warn">${w}</div>`).join('')}
-   <div class="wrapt"><table class="tbl"><tr><th>Tube acier</th><th class="r">Ø int.</th><th class="r">Perte de charge</th><th class="r">Vitesse</th></tr>
-   ${rows.map(r=>`<tr class="${r===best?'best':r.id>=d?'ok':'ko'}"><td>DN ${r.dn} · ${r.inch}${r===best?'<span class="tag">Conseillé</span>':''}</td><td class="r">${NF(r.id,1)} mm</td><td class="r">${r.dp>=10?'> 10':NF(r.dp,r.dp<0.01?4:3)} bar</td><td class="r">${r.v>=100?'> 100':NF(r.v,1)} m/s</td></tr>`).join('')}</table></div>
-   <div class="hint" style="margin-top:8px">Tube acier fileté série moyenne (NF EN 10255). Pour l’aluminium, l’inox ou le PE, prends un tube dont le <b>diamètre intérieur</b> est au moins de ${NF(d,1)} mm.</div>
+   <div class="wrapt"><table class="tbl"><tr><th>Tube inox serti</th><th class="r">Ø int.</th><th class="r">Perte de charge</th><th class="r">Vitesse</th></tr>
+   ${rows.map(r=>`<tr class="${r===best?'best':r.id>=d?'ok':'ko'}"><td>${lab(r)}${r===best?'<span class="tag">Conseillé</span>':''}${p>r.pmax?' <span style="color:#b45309;font-weight:700" title="Pression max courante : '+r.pmax+' bar">⚠</span>':''}</td><td class="r">${NF(r.id,1)} mm</td><td class="r">${r.dp>=10?'> 10':NF(r.dp,r.dp<0.01?4:3)} bar</td><td class="r">${r.v>=100?'> 100':NF(r.v,1)} m/s</td></tr>`).join('')}</table></div>
+   <div class="hint" style="margin-top:8px">Tubes inox à sertir standard (Ø extérieur × épaisseur, en mm). Pression max courante : 16 bar jusqu’au Ø 54, 10 bar au-delà, à vérifier selon la marque. Pour un autre matériau, prends un tube dont le <b>diamètre intérieur</b> est au moins de ${NF(d,1)} mm.</div>
    <div class="acts"><button class="btn p" id="cp">Copier le résultat</button><button class="btn g" id="rs">Réinitialiser</button></div>`;
   $('cp').onclick=()=>copyText(summary(),'Résultat copié');
   $('rs').onclick=()=>{['q','p','l'].forEach(i=>$(i).value='');$('le').value='0';$('m').value='0';$('dp').value='0,1';save();calc()};
@@ -318,7 +319,7 @@ Pression de service : ${NF(s.p,1)} bar
 Longueur : ${NF(s.l)} m${s.le?` + ${NF(s.le)} m de raccords`:''}
 Perte de charge admissible : ${NF(s.dp,2)} bar
 Diamètre intérieur minimal : ${NF(s.d,1)} mm
-${s.best?`Tube acier conseillé : DN ${s.best.dn} (${s.best.inch}), Ø int. ${NF(s.best.id,1)} mm, perte de charge ${NF(s.best.dp,3)} bar, vitesse ${NF(s.best.v,1)} m/s`:'Débit supérieur à un DN 150 : à étudier'}
+${s.best?`Tube inox à sertir conseillé : ${lab(s.best)} mm, Ø int. ${NF(s.best.id,1)} mm, perte de charge ${NF(s.best.dp,3)} bar, vitesse ${NF(s.best.v,1)} m/s`:'Pas de tube inox à sertir standard adapté : à étudier'}
 Pré-dimensionnement à confirmer par un technicien Airflux.`}
 const KEY='airflux_tuyau_v1',IDS=['q','qu','p','l','le','m','dp'];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(IDS.map(i=>[i,$(i).value]))))}catch(e){}}
