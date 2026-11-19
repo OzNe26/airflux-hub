@@ -188,7 +188,7 @@ const T=[
   s:'Airflux – des nouvelles de vos installations',
   b:'{bonjour}\n\nNous avons eu le plaisir de travailler ensemble par le passé ({historique}), et je souhaitais prendre de vos nouvelles.\n\nOù en sont vos installations d’air comprimé aujourd’hui ? Vos besoins ont peut-être évolué : nouveau compresseur, extension du réseau, contrat de maintenance ou simple contrôle de vos équipements.\n\n{cta}\n\nAu plaisir d’échanger avec vous,\n\nBien cordialement,\n\n'+SIG},
  {id:'devis',n:'Devis sans suite',f:['objetDevis','dateDevis2','cta'],
-  s:'Vos installations d’air comprimé : où en êtes-vous ?',
+  s:'{ctaObj}',
   b:'{bonjour}\n\nNous vous avions adressé {dateDevis2} une proposition pour {objetDevis}. Nous n’avions pas travaillé ensemble à cette occasion, et je me permets de revenir vers vous pour savoir où vous en êtes aujourd’hui.\n\nVotre installation, vos besoins ou votre prestataire actuel ont peut-être évolué depuis. Si vous le souhaitez, je serais ravi de vous faire une nouvelle proposition, à jour et adaptée à votre situation.\n\n{cta}\n\nBien cordialement,\n\n'+SIG},
  {id:'compte',n:'Rencontré, sans suite',f:['rencontre','cta'],
   s:'Airflux – reprendre contact',
@@ -259,7 +259,7 @@ function val(k){
   return (S.v[k]||'').trim();
 }
 function build(tpl,html){
-  tpl=tpl.replace(/\{cta\}/g,()=>ctaTpl());
+  tpl=tpl.replace(/\{cta\}/g,()=>ctaTpl()).replace(/\{ctaObj\}/g,()=>({site:'Proposition de rendez-vous',tel:'Proposition d’échange téléphonique',visio:'Proposition de rendez-vous en visio'})[S.cta.typ]||'Proposition de rendez-vous');
   return tpl.replace(/\{(\w+)\}/g,(m,k)=>{const v=val(k);if(v)return html?esc(v):v;const ph='['+(FL[k]?FL[k][0]:k)+']';return html?`<mark>${esc(ph)}</mark>`:ph});
 }
 function drawFields(){
