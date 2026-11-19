@@ -215,12 +215,21 @@ const T=[
 ]},
 {id:'devis',n:'Relance de devis',d:'Une offre en attente : 3 situations',f:[],v:[
  {id:'d1',n:'1re relance',f:['refDevis','dateDevis'],
+ alt:[
+  {s:'Notre offre {refDevis} – avez-vous des questions ?',b:'{bonjour}\n\nJe reviens vers vous au sujet de l’offre {refDevis} que nous vous avons transmise le {dateDevis}.\n\nJe voulais m’assurer qu’elle vous était bien parvenue et qu’elle répondait à vos attentes. Si certains points méritent d’être précisés (délais, options, conditions), je peux vous rappeler au moment qui vous arrange.'+END},
+  {s:'Devis {refDevis}',b:'{bonjour}\n\nPetit message pour savoir si vous avez pu regarder notre offre {refDevis} du {dateDevis}.\n\nUn retour, même rapide, m’aiderait à avancer de mon côté : le projet est-il toujours d’actualité ?'+END}],
   s:'Votre devis {refDevis}',
   b:'{bonjour}\n\nJe me permets de revenir vers vous concernant notre offre {refDevis}, transmise le {dateDevis}.\n\nAvez-vous pu en prendre connaissance ? Je suis à votre disposition pour en discuter, l’ajuster si nécessaire ou répondre à vos questions.'+END},
  {id:'d2',n:'Avant expiration',f:['refDevis','dateDevis','validite'],
+ alt:[
+  {s:'Offre {refDevis} : fin de validité le {validite}',b:'{bonjour}\n\nJe me permets de vous rappeler que notre offre {refDevis}, envoyée le {dateDevis}, arrive à échéance le {validite}. Au-delà de cette date, les prix et les délais pourront être revus.\n\nSi vous souhaitez en bénéficier, il vous suffit de nous retourner l’offre signée. Je reste disponible pour en parler.'+END},
+  {s:'Votre devis {refDevis} expire bientôt',b:'{bonjour}\n\nNotre offre {refDevis} du {dateDevis} est valable jusqu’au {validite}.\n\nSouhaitez-vous que nous la validions ensemble avant cette date, ou préférez-vous que je la mette à jour selon votre besoin actuel ?'+END}],
   s:'Votre devis {refDevis} – validité jusqu’au {validite}',
   b:'{bonjour}\n\nPour rappel, notre offre {refDevis} transmise le {dateDevis} est valable jusqu’au {validite}.\n\nSi elle vous convient, il vous suffit de nous la retourner signée. Si certains points sont à revoir, je peux tout à fait l’adapter : dites-moi simplement ce qui vous pose question.'+END},
  {id:'d3',n:'Dernière relance',f:['refDevis','dateDevis'],
+ alt:[
+  {s:'Clôture de votre dossier {refDevis}',b:'{bonjour}\n\nSans retour de votre part concernant notre offre {refDevis} du {dateDevis}, je vais clôturer ce dossier de mon côté.\n\nSi le projet est simplement décalé, n’hésitez pas à me le dire : je le garde de côté et reviendrai vers vous au moment opportun.'+END},
+  {s:'Offre {refDevis}',b:'{bonjour}\n\nJe n’ai pas eu de nouvelles concernant notre offre {refDevis} du {dateDevis}, et je ne souhaite pas vous relancer inutilement.\n\nPourriez-vous simplement me répondre avec le chiffre qui correspond ?\n1. Le projet est toujours d’actualité, rappelez-moi.\n2. Le projet est reporté, recontactez-moi plus tard.\n3. Le projet est abandonné ou confié à un autre prestataire.\n\nMerci d’avance pour votre retour.'+END}],
   s:'Votre devis {refDevis} – où en êtes-vous ?',
   b:'{bonjour}\n\nJe reviens une dernière fois vers vous au sujet de notre offre {refDevis} du {dateDevis}.\n\nLe projet a peut-être été reporté ou confié à un autre prestataire : dans tous les cas, un petit retour de votre part m’aiderait à mettre à jour votre dossier. Et si le besoin revient plus tard, je serai ravi d’actualiser l’offre.'+END}
 ]}
@@ -241,7 +250,10 @@ function ctaTpl(){const t=TYPTXT[S.cta.typ],x=S.cta.typ==='site'?' Ce sera l’o
  default:return 'Je vous propose '+t+' le {creneau1} ou le {creneau2}.'+x+' Si ces créneaux ne vous conviennent pas, indiquez-moi simplement celui qui vous arrange.';}}
 function ctaKeys(){return S.cta.mode==='prop2'?['creneau1','creneau2']:S.cta.mode==='prop1'?['creneau1']:[]}
 const base=()=>T.find(t=>t.id===S.t)||T[0];
-const cur=()=>{const t=base();if(!t.v)return t;const v=t.v.find(x=>x.id===S.var[t.id])||t.v[0];return Object.assign({},t,v,{id:t.id})};
+S.mod=S.mod||{};
+const curV=()=>{const t=base();return t.v?(t.v.find(x=>x.id===S.var[t.id])||t.v[0]):null};
+const modKey=()=>{const t=base(),v=curV();return t.id+'/'+(v?v.id:'')};
+const cur=()=>{const t=base();if(!t.v)return t;const v=curV();let r=Object.assign({},t,v,{id:t.id});const m=+(S.mod[modKey()]||0);if(v.alt&&m>0&&v.alt[m-1])r=Object.assign(r,v.alt[m-1]);return r};
 function val(k){
   if(k==='bonjour'){const n=(S.v.nom||'').trim();return n?`Bonjour ${S.civ} ${n},`:`Bonjour ${S.civ},`}
   return (S.v[k]||'').trim();
@@ -252,7 +264,7 @@ function build(tpl,html){
 }
 function drawFields(){
   const t=cur(),hasC=t.f.includes('cta'),keys=['nom',...t.f.flatMap(k=>k==='cta'?ctaKeys():[k]),'tel'];
-  const bt=base(),va=bt.v?`<div class="full"><span class="lbl">Situation</span><div class="civ" id="var">${bt.v.map(x=>`<button data-v="${x.id}" class="${x.id===(S.var[bt.id]||bt.v[0].id)?'on':''}">${esc(x.n)}</button>`).join('')}</div></div>`:'';
+  const bt=base(),va=bt.v?`<div class="full"><span class="lbl">Situation</span><div class="civ" id="var">${bt.v.map(x=>`<button data-v="${x.id}" class="${x.id===(S.var[bt.id]||bt.v[0].id)?'on':''}">${esc(x.n)}</button>`).join('')}</div></div>`+(curV()&&curV().alt?`<div class="full"><span class="lbl">Modèle</span><div class="civ seg" id="mods">${[0,1,2].slice(0,curV().alt.length+1).map(i=>`<button data-m="${i}" class="${i===+(S.mod[modKey()]||0)?'on':''}">Modèle ${i+1}</button>`).join('')}</div></div>`:''):'';
   const seg=(id,arr,on)=>`<div class="civ seg" id="${id}">${arr.map(([k,l])=>`<button data-x="${k}" class="${k===on?'on':''}">${esc(l)}</button>`).join('')}</div>`;
   const ca=hasC?`<div class="full ctab"><span class="lbl">Ce que tu demandes</span>${seg('ctyp',TYP,S.cta.typ)}${seg('cmode',MODE,S.cta.mode)}</div>`:'';
   $('#fields').innerHTML=va+ca+`<div><span class="lbl">Civilité</span><div class="civ" id="civ"><button data-c="Monsieur" class="${S.civ==='Monsieur'?'on':''}">M.</button><button data-c="Madame" class="${S.civ==='Madame'?'on':''}">Mme</button></div></div>`+
@@ -261,6 +273,7 @@ function drawFields(){
   document.querySelectorAll('#civ button').forEach(b=>b.onclick=()=>{S.civ=b.dataset.c;save();drawFields()});
   document.querySelectorAll('#ctyp button').forEach(b=>b.onclick=()=>{S.cta.typ=b.dataset.x;save();drawFields()});
   document.querySelectorAll('#cmode button').forEach(b=>b.onclick=()=>{S.cta.mode=b.dataset.x;save();drawFields()});
+  document.querySelectorAll('#mods button').forEach(b=>b.onclick=()=>{S.mod[modKey()]=+b.dataset.m;save();drawFields()});
   document.querySelectorAll('#var button').forEach(b=>b.onclick=()=>{S.var[base().id]=b.dataset.v;save();drawFields()});
   drawMail();
 }
