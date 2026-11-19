@@ -149,7 +149,7 @@ textarea.inp{height:auto;min-height:64px;padding:10px 12px;resize:vertical;line-
 'use strict';
 const METIERS=['Métallier','Bâtiment / TP','Menuisier','Administrations / collectivités','Plombier','Industrie','Tous métiers'];
 const FICHES=[
-{id:'air',n:'61',title:'Air comprimé',sub:'Découvrir l’usage de l’air comprimé chez le prospect.',
+{id:'air',n:'1',title:'Air comprimé',sub:'Découvrir l’usage de l’air comprimé chez le prospect.',
  qs:[
   {t:'Avez-vous une source d’énergie air comprimé dans vos locaux ?',type:'one',o:['Oui','Non']},
   {t:'Quel type de compresseur possédez-vous ?',type:'multi',o:['À piston','À vis','Thermique','Chantier']},
@@ -183,7 +183,7 @@ const FICHES=[
   fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
   rem:['Les grandes marques Worthington Creyssensac, Abac, DeVilbiss, Mauguière font partie du groupe Atlas Copco.','Principales marques d’outillage : Ingersoll Rand, Atlas Copco, Desoutter, Chicago Pneumatic, Cedrey, Rodcraft…','Principales marques de réseaux et accessoires : Prevost, Transair (Legris).']
  }},
-{id:'comp',n:'62',title:'Compresseur',sub:'Qualifier un besoin de compresseur neuf ou de remplacement.',
+{id:'comp',n:'2',title:'Compresseur',sub:'Qualifier un besoin de compresseur neuf ou de remplacement.',
  qs:[
   {t:'Dans quel environnement allez-vous utiliser ce compresseur ?',type:'one',o:['Atelier','Chantier']},
   {t:'Pour quelle utilisation vous servez-vous de votre compresseur ?',type:'multi',o:['Pour tout l’atelier','Alimentation machine','La peinture','Petits accessoires (type soufflette)','Outils pneumatiques'],other:'Autres'},
@@ -210,7 +210,7 @@ const FICHES=[
   fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
   rem:['Plus la vitesse du compresseur est lente, plus le produit est de qualité et offre une meilleure longévité.']
  }},
-{id:'res',n:'65',title:'Réseau d’air',sub:'Qualifier un projet de réseau de distribution d’air comprimé.',
+{id:'res',n:'3',title:'Réseau d’air',sub:'Qualifier un projet de réseau de distribution d’air comprimé.',
  qs:[
   {t:'Combien avez-vous de postes de travail à desservir ?',type:'text',short:true},
   {t:'Quelle est la longueur de la tuyauterie de votre réseau ?',type:'text',short:true},
@@ -322,7 +322,7 @@ function bind(){
 }
 function recap(){
   const f=F(),d=D(),L=[];
-  L.push(`FICHE DÉCOUVERTE – ${f.title.toUpperCase()} (${f.n})`);
+  L.push(`FICHE DÉCOUVERTE – ${f.title.toUpperCase()}`);
   L.push(`Société : ${d.id.soc||'—'}`,`Activité : ${d.id.act||'—'}`,`Date : ${d.id.date?new Date(d.id.date).toLocaleDateString('fr-FR'):'—'}`);
   if(d.m.length)L.push(`Métier : ${d.m.join(', ')}`);
   L.push('');
