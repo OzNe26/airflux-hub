@@ -236,6 +236,8 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
 .ech{display:grid;gap:6px}
 .ech .ev{cursor:pointer}
 .ech .ev:hover{background:#e6ecf6}
+.ev .xd{border:0;background:none;color:var(--muted);font-size:19px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:8px;flex:none}
+.ev .xd:hover{background:#fde2e1;color:#b42318}
 .tabs2{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .tabs2 .chip.on{background:#1e3560;color:#fff;border-color:#1e3560}
 .empty{font-size:13px;color:var(--muted)}
@@ -279,6 +281,7 @@ footer{max-width:1120px;margin:0 auto;padding:6px 24px 30px;color:var(--muted);f
     <div class="acts" style="grid-template-columns:1fr 1fr">
       <button class="btn n" id="bSave" type="button">Enregistrer dans l’échéancier</button>
       <button class="btn g" id="bNew" type="button">Nouvelle société</button>
+      <button class="btn g" id="bDel" type="button" style="grid-column:1/-1;color:#b42318;display:none">Supprimer cette société de l’échéancier</button>
     </div>
   </div>
   <div class="card">
@@ -410,7 +413,7 @@ function drawOut(){
     </div>`}).join('');
   const has=R.some(r=>r.ev.length);
   const so=S.n?encodeURIComponent(S.n):'';
-  $('acts').innerHTML=has?`<button class="btn p" id="aCall">Copier l’argument d’appel</button><button class="btn g" id="aMail">Copier l’e-mail au client</button>${so?`<a class="btn g" href="../relances/?n=${so}">Créer une relance</a>`:''}<button class="btn g" id="aIcs">Rappel dans l’agenda</button><button class="btn g" id="aPrint">Imprimer la fiche</button>`:'';
+  $('acts').innerHTML=has?`<button class="btn p" id="aCall">Copier l’argument d’appel</button><button class="btn g" id="aMail">Copier l’e-mail au client</button>${so?`<a class="btn g" href="../relances/?n=${so}">Créer une relance</a>`:''}<button class="btn g" id="aIcs">Rappel dans l’agenda</button><button class="btn g" id="aPrint">Fiche PDF / imprimer</button>`:'';
   if(!has)return;
   $('aCall').onclick=()=>copyText(callText(R),'Argument copié');
   $('aMail').onclick=()=>copyText(mailText(R),'E-mail copié, colle-le dans Outlook');
@@ -459,20 +462,28 @@ function drawEch(){
   document.querySelectorAll('#tabs2 [data-t]').forEach(b=>b.onclick=()=>{TAB=b.dataset.t;drawEch()});
   const L=all.filter(f);
   $('ech').innerHTML=!DBR.length?'<div class="empty">Enregistre les réservoirs de tes clients et prospects : leurs prochaines échéances apparaîtront ici, triées par date. Une liste d’appels toute prête.</div>':!L.length?'<div class="empty">Rien dans cette période.</div>':
-   L.map(x=>{const s=stat(x.e.d);return `<div class="ev" data-id="${x.c.id}"><div class="ic" style="background:${s[2]}">${x.e.k}</div><div class="tx"><b>${esc(x.c.n||'Sans nom')}</b><small>${esc(tkName(x.t,x.i))}${x.c.v?' · '+esc(x.c.v):''}</small></div><div class="dt ${s[0]}">${fmtM(x.e.d)}<small>${s[1]}</small></div></div>`}).join('')+
+   L.map(x=>{const s=stat(x.e.d);return `<div class="ev" data-id="${x.c.id}"><div class="ic" style="background:${s[2]}">${x.e.k}</div><div class="tx"><b>${esc(x.c.n||'Sans nom')}</b><small>${esc(tkName(x.t,x.i))}${x.c.v?' · '+esc(x.c.v):''}</small></div><div class="dt ${s[0]}">${fmtM(x.e.d)}<small>${s[1]}</small></div><button class="xd" data-x="${x.c.id}" title="Supprimer cette société de l’échéancier">×</button></div>`}).join('')+
    (DBR.length?`<button class="btn g" id="eCsv" style="margin-top:10px">Exporter l’échéancier (Excel)</button>`:'');
   document.querySelectorAll('#ech .ev').forEach(el=>el.onclick=()=>load(el.dataset.id));
+  document.querySelectorAll('#ech .xd').forEach(b=>b.onclick=e=>{e.stopPropagation();del(b.dataset.x)});
   if($('eCsv'))$('eCsv').onclick=()=>{const q=s=>{s=String(s??'');return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
     const rows=[['Société','Ville','Réservoir','Volume (L)','PS (bar)','Mise en service','Contrôle','Échéance','Statut'],...all.map(x=>[x.c.n,x.c.v,tkName(x.t,x.i),x.t.v,x.t.ps,fmtM(x.t.mes),x.e.k==='IP'?'Inspection périodique':'Requalification périodique',fmtM(x.e.d),stat(x.e.d)[1]])];
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download='echeancier-reservoirs.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)};
 }
-function load(id){const c=DBR.find(x=>x.id===id);if(!c)return;S=JSON.parse(JSON.stringify(c));$('fS').value=S.n;soLink();drawTk();drawOut();window.scrollTo({top:0,behavior:'smooth'})}
+let delArm={id:null,t:0};
+function del(id){const c=DBR.find(x=>x.id===id);if(!c)return;
+  if(delArm.id!==id||Date.now()-delArm.t>3500){delArm={id,t:Date.now()};toast(`Clique encore une fois pour supprimer ${c.n||'cette société'} (${c.tk.length} réservoir${c.tk.length>1?'s':''})`);return}
+  delArm={id:null,t:0};DBR=DBR.filter(x=>x.id!==id);saveDB();if(S.id===id){S.id=null;drawDel()}drawEch();toast((c.n||'Société')+' supprimée de l’échéancier')}
+function drawDel(){$('bDel').style.display=S.id&&DBR.some(x=>x.id===S.id)?'':'none'}
+$('bDel').onclick=()=>del(S.id);
+function load(id){const c=DBR.find(x=>x.id===id);if(!c)return;S=JSON.parse(JSON.stringify(c));$('fS').value=S.n;soLink();drawTk();drawOut();drawDel();window.scrollTo({top:0,behavior:'smooth'})}
 $('bSave').onclick=()=>{if(!S.n.trim()){toast('Indique la société');$('fS').focus();return}
   if(!S.tk.some(t=>calc(t).ok)){toast('Renseigne au moins un réservoir');return}
-  if(!S.id)S.id=uid();const c=JSON.parse(JSON.stringify(S));const i=DBR.findIndex(x=>x.id===S.id);if(i>=0)DBR[i]=c;else DBR.push(c);saveDB();drawEch();toast('Enregistré dans l’échéancier')};
-$('bNew').onclick=()=>{S={id:null,n:'',ref:'',s:'',cp:'',v:'',tk:[blank()]};$('fS').value='';soLink();drawTk();drawOut();$('fS').focus()};
+  if(!S.id)S.id=uid();const c=JSON.parse(JSON.stringify(S));const i=DBR.findIndex(x=>x.id===S.id);if(i>=0)DBR[i]=c;else DBR.push(c);saveDB();drawEch();drawDel();toast('Enregistré dans l’échéancier')};
+$('bNew').onclick=()=>{S={id:null,n:'',ref:'',s:'',cp:'',v:'',tk:[blank()]};$('fS').value='';soLink();drawTk();drawOut();drawDel();$('fS').focus()};
 
 /* ---------- Démarrage ---------- */
+document.body.appendChild($('pa'));
 (function(){const n=new URLSearchParams(location.search).get('n');if(n){const c=DBR.find(x=>norm(x.n)===norm(n));if(c){load(c.id);drawEch();return}S.n=n;$('fS').value=n;const p=OURS.find(x=>norm(x.n)===norm(n));if(p){S.ref=p.ref||'';S.v=p.v||''}}soLink();drawTk();drawOut();drawEch()})();
 
 })();
