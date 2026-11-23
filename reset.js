@@ -15,7 +15,9 @@
     '/airflux-hub/rdv/': [],
     '/airflux-hub/entreprise/': [],
     '/airflux-hub/trame/': [],
-    '/airflux-hub/objections/': []
+    '/airflux-hub/objections/': [],
+    '/airflux-hub/detecteur/': ['airflux_detect_v1'],
+    '/airflux-hub/compte-rendu/': ['airflux_cr_draft_v1']
   };
   if (!(P in CFG)) return;
   var KEYS = CFG[P];
