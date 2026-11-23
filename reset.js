@@ -7,7 +7,7 @@
     '/airflux-hub/emails/': ['airflux_emails_v1'],
     '/airflux-hub/convertisseur/': ['airflux_conv_v1', 'airflux_conv_v2'],
     '/airflux-hub/economies/': ['airflux_eco_v1'],
-    '/airflux-hub/reservoirs/': ['airflux_cuve_v1'],
+    '/airflux-hub/reservoirs/': ['airflux_cuve_v1', 'airflux_cuve_v2'],
     '/airflux-hub/tuyauterie/': ['airflux_tuyau_v1'],
     '/airflux-hub/froid/': ['airflux_froid_v1'],
     '/airflux-hub/tournee/': ['airflux_tournee_v1'],
