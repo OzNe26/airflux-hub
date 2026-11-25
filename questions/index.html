@@ -116,6 +116,7 @@ textarea.inp{height:auto;min-height:64px;padding:10px 12px;resize:vertical;line-
   .opt{border-color:#bbb}
   .opt.on,.num,.memo h3{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.qgrp{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin:22px 4px 8px}
 </style>
 </head>
 <body>
@@ -149,7 +150,31 @@ textarea.inp{height:auto;min-height:64px;padding:10px 12px;resize:vertical;line-
 'use strict';
 const METIERS=['Métallier','Bâtiment / TP','Menuisier','Administrations / collectivités','Plombier','Industrie','Tous métiers'];
 const FICHES=[
-{id:'air',n:'1',title:'Air comprimé',sub:'Découvrir l’usage de l’air comprimé chez le prospect.',
+{id:'gen',n:'1',title:'Questions générales',sub:'Les questions à poser à tout prospect pendant l’appel.',
+ qs:[
+  {g:'Le contact',t:'Êtes-vous la bonne personne pour parler de l’air comprimé et de la maintenance ?',type:'one',o:['Oui','Non']},
+  {t:'Qui d’autre intervient dans les décisions (achat, direction, maintenance) ?',type:'text',short:true},
+  {t:'Quel est le meilleur moyen de vous joindre (ligne directe, e-mail) ?',type:'text',short:true},
+  {g:'L’installation actuelle',t:'Utilisez-vous de l’air comprimé sur votre site ?',type:'one',o:['Oui','Non']},
+  {t:'Combien de compresseurs avez-vous, et de quel type ?',type:'multi',o:['À piston','À vis','Thermique'],other:'Nombre / précisions'},
+  {t:'Quelle marque, et quel âge ont-ils à peu près ?',type:'text',short:true},
+  {t:'Avez-vous un sécheur, des filtres, une cuve ?',type:'multi',o:['Sécheur','Filtres','Cuve','Rien de tout ça']},
+  {t:'À quelle pression travaillez-vous ?',type:'text',short:true},
+  {g:'L’utilisation',t:'À quoi sert l’air comprimé chez vous (outils, machines, peinture…) ?',type:'text',short:true},
+  {t:'Combien d’heures par jour tourne le compresseur ? Combien de jours par semaine ?',type:'text',short:true},
+  {t:'Si le compresseur tombe en panne, est-ce que la production s’arrête ?',type:'one',o:['Oui','Non','En partie']},
+  {g:'L’entretien',t:'Qui s’occupe de l’entretien aujourd’hui ?',type:'one',o:['En interne','Prestataire','Personne'],other:'Lequel'},
+  {t:'Avez-vous un contrat de maintenance ? Jusqu’à quand ?',type:'one',o:['Oui','Non'],other:'Échéance'},
+  {t:'Quand a eu lieu la dernière visite ?',type:'text',short:true},
+  {t:'Avez-vous eu des pannes ou des fuites récemment ?',type:'text',short:true},
+  {g:'Les besoins et projets',t:'Qu’est-ce qui vous gêne aujourd’hui ?',type:'multi',o:['Bruit','Consommation','Pannes','Humidité dans l’air','Pression insuffisante'],other:'Autres'},
+  {t:'Avez-vous un projet à venir (agrandissement, nouvelle machine, renouvellement) ?',type:'text'},
+  {t:'Connaissez-vous le coût en électricité de votre air comprimé ?',type:'one',o:['Oui','Non']},
+  {g:'La suite',t:'Sous quel délai souhaiteriez-vous avancer ?',type:'text',short:true},
+  {t:'Avez-vous déjà un budget en tête ?',type:'text',short:true},
+  {t:'Seriez-vous d’accord pour qu’un technicien passe faire un état des lieux ?',type:'one',o:['Oui','Non','À rappeler']}
+ ]},
+{id:'air',n:'2',title:'Air comprimé',sub:'Découvrir l’usage de l’air comprimé chez le prospect.',
  qs:[
   {t:'Avez-vous une source d’énergie air comprimé dans vos locaux ?',type:'one',o:['Oui','Non']},
   {t:'Quel type de compresseur possédez-vous ?',type:'multi',o:['À piston','À vis','Thermique','Chantier']},
@@ -183,7 +208,7 @@ const FICHES=[
   fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
   rem:['Les grandes marques Worthington Creyssensac, Abac, DeVilbiss, Mauguière font partie du groupe Atlas Copco.','Principales marques d’outillage : Ingersoll Rand, Atlas Copco, Desoutter, Chicago Pneumatic, Cedrey, Rodcraft…','Principales marques de réseaux et accessoires : Prevost, Transair (Legris).']
  }},
-{id:'comp',n:'2',title:'Compresseur',sub:'Qualifier un besoin de compresseur neuf ou de remplacement.',
+{id:'comp',n:'3',title:'Compresseur',sub:'Qualifier un besoin de compresseur neuf ou de remplacement.',
  qs:[
   {t:'Dans quel environnement allez-vous utiliser ce compresseur ?',type:'one',o:['Atelier','Chantier']},
   {t:'Pour quelle utilisation vous servez-vous de votre compresseur ?',type:'multi',o:['Pour tout l’atelier','Alimentation machine','La peinture','Petits accessoires (type soufflette)','Outils pneumatiques'],other:'Autres'},
@@ -210,7 +235,7 @@ const FICHES=[
   fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
   rem:['Plus la vitesse du compresseur est lente, plus le produit est de qualité et offre une meilleure longévité.']
  }},
-{id:'res',n:'3',title:'Réseau d’air',sub:'Qualifier un projet de réseau de distribution d’air comprimé.',
+{id:'res',n:'4',title:'Réseau d’air',sub:'Qualifier un projet de réseau de distribution d’air comprimé.',
  qs:[
   {t:'Combien avez-vous de postes de travail à desservir ?',type:'text',short:true},
   {t:'Quelle est la longueur de la tuyauterie de votre réseau ?',type:'text',short:true},
@@ -241,7 +266,7 @@ const FICHES=[
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KEY='airflux_questions_v1';
-let S={fiche:'air',view:'q',data:{}};
+let S={fiche:'gen',view:'q',data:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.data)S=Object.assign(S,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const D=()=>{const f=S.fiche;if(!S.data[f])S.data[f]={id:{date:new Date().toISOString().slice(0,10)},m:[],a:{}};return S.data[f]};
@@ -259,9 +284,9 @@ function answered(q,a){
 }
 function render(){
   renderTabs();
-  const f=F(),d=D();
+  const f=F(),d=D();if(!f.memo)S.view='q';
   let h=`<div class="intro"><div style="flex:1;min-width:240px"><h1>${esc(f.title)}</h1><p>${esc(f.sub)}</p></div>
-  <div class="seg"><button data-v="q" class="${S.view==='q'?'on':''}">Questions</button><button data-v="m" class="${S.view==='m'?'on':''}">Mémo produit</button></div></div>`;
+  ${f.memo?`<div class="seg"><button data-v="q" class="${S.view==='q'?'on':''}">Questions</button><button data-v="m" class="${S.view==='m'?'on':''}">Mémo produit</button></div>`:''}</div>`;
   if(S.view==='q'){
     h+=`<div class="card"><div class="ident">
       <div class="f"><label>Société</label><input class="inp" data-id="soc" value="${esc(d.id.soc)}" placeholder="Nom de la société"></div>
@@ -270,6 +295,7 @@ function render(){
       <div class="targets"><div class="lab">Métier</div>${METIERS.map(m=>`<button class="opt multi${d.m.includes(m)?' on':''}" data-m="${esc(m)}">${esc(m)}</button>`).join('')}</div></div>`;
     f.qs.forEach((q,i)=>{
       const a=d.a[i]||{};
+      if(q.g)h+=`<h2 class="qgrp">${esc(q.g)}</h2>`;
       h+=`<div class="card q${answered(q,a)?' done':''}" data-q="${i}"><div class="qh"><div class="num">${i+1}</div><div class="qt">${esc(q.t)}${q.hint?` <em>(${esc(q.hint)})</em>`:''}</div></div><div class="qb">`;
       if(q.type==='one'||q.type==='multi'){
         h+=`<div class="opts">${q.o.map(o=>`<button class="opt${q.type==='multi'?' multi':''}${(a.sel||[]).includes(o)?' on':''}" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
@@ -332,6 +358,7 @@ function recap(){
     if(q.type==='text')r=a.v.trim();
     else if(q.type==='contacts'){L.push(`${i+1}. ${q.t}`);q.roles.filter(x=>a[x]&&Object.values(a[x]).some(v=>v&&v.trim())).map(x=>`   - ${x} : ${[a[x].nom,a[x].fn,a[x].tel].filter(v=>v&&v.trim()).join(' · ')}`).forEach(x=>L.push(x));return}
     else r=[...(a.sel||[]),...(a.other&&a.other.trim()?[`${q.other} : ${a.other.trim()}`]:[])].join(', ');
+    if(q.g)L.push('',q.g.toUpperCase());
     L.push(`${i+1}. ${q.t}${q.hint?' ('+q.hint+')':''}`,`   → ${r}`);
   });
   return L.join('\n');
