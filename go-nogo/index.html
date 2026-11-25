@@ -202,6 +202,8 @@ main{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
 .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
 .chk{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;cursor:pointer;user-select:none}
 .chk input{width:18px;height:18px;accent-color:var(--red)}
+.drg{margin-top:10px;font-size:12.5px;color:#8a5a00;background:#fff4e5;border-radius:9px;padding:8px 10px}
+.drg[hidden]{display:none}
 .sec h2{display:flex;align-items:center;gap:10px}
 .sec h2 .sn{background:var(--navy);color:#fff;border-radius:7px;padding:3px 7px;font-size:11px;letter-spacing:.05em}
 .sec h2 .ss{white-space:nowrap;margin-left:auto;font-size:12px;letter-spacing:0;text-transform:none;color:var(--navy);background:var(--soft);border-radius:20px;padding:3px 10px}
@@ -342,6 +344,7 @@ details.gd[open] summary:before{transform:rotate(90deg)}
     <div class="g3">
       <div class="f"><label for="aPen">Pénalités contractuelles</label><div class="in"><input id="aPen" data-a="pen" inputmode="decimal" placeholder="Ex. 3"><span class="u">% du contrat</span></div></div>
       <div class="f"><label for="aMg">Marge affaire</label><div class="in"><input id="aMg" data-a="mg" inputmode="decimal" placeholder="Ex. 32"><span class="u">%</span></div></div>
+      <div class="f"><label for="aPl">Plafond dommages &amp; intérêts</label><div class="in"><input id="aPl" data-a="pl" inputmode="decimal" placeholder="= montant contrat"><span class="u">€</span></div></div>
       <div class="f"><label for="aRec">Clause D&amp;I réciproque ?</label><div class="in"><select id="aRec" data-a="rec"><option value="">À vérifier</option><option value="oui">Oui, plafond = montant contrat</option><option value="non">Non, asymétrique</option></select></div></div>
     </div>
     <div class="al" id="liab"></div>
@@ -423,13 +426,13 @@ const SECS=[
   ['bud','Budget confirmé & alloué','Ligne budgétaire validée ? Montant cohérent avec notre estimation ?'],
   ['dec','Déclencheur identifié & urgent','Pourquoi maintenant ? Fin de contrat, panne, réglementation, croissance ?'],
   ['tec','Besoin technique qualifié','CDC connu : puissance, débit, pression, normes (ATEX, ISO 8573…) ?'],
-  ['tim','Timing décision < 3 mois','Date de décision confirmée et cohérente avec notre planning ?']]},
+  ['tim','Timing décision < 3 mois','Date de décision confirmée et cohérente avec notre planning ?','',{opex:'Date de décision confirmée et cohérente avec notre cycle de livraison ?'}]]},
  {id:'s2',t:'Parties prenantes & décision',c:[
   ['dfi','Décideur final identifié','Qui signe ? DG, DAF, comité d’investissement ? Accès direct ou via un intermédiaire ?'],
   ['cir','Circuit décisionnel connu','Nombre de valideurs, délégation de signature, rôle du groupe ou de la holding ?'],
   ['pre','Prescripteur technique : position','Pour, contre, neutre ? Réticence contournable ou bloquante ?',1],
   ['spo','Sponsor / allié interne identifié','Contact favorable : direction, maintenance, finance, energy manager ?'],
-  ['ach','Achats / DAF : critères connus','Critères de choix hors technique : prix seul ou TCO ? Conditions de paiement ? Garanties financières exigées ?']]},
+  ['ach','Achats / DAF : critères connus','Quels sont les critères de choix (hors technique) ? Prix seul ou TCO ? Conditions de paiement ? Garanties financières exigées ?','',{opex:'Prix seul ou TCO ? Conditions de paiement ? Garanties financières exigées ?'}]]},
  {id:'s3',t:'Position concurrentielle',c:[
   ['dif','Différenciation démontrée','Au moins un argument fort face à la concurrence : techno, service, financement, délai ?'],
   ['ref','Références secteur disponibles','Références similaires en taille / secteur pour crédibiliser l’offre ?'],
@@ -475,12 +478,13 @@ const EUR=v=>isFinite(v)?NF(Math.round(v))+' €':'—';
 
 function drawCrit(){
   const n0={s1:'01',s2:'02',s3:'03',s4:'04',s5:'05'};
-  $('crit').innerHTML=secs().map(s=>`<div class="card sec"><h2><span class="sn">${n0[s.id]}</span>${esc(s.t)}<span class="ss" id="ss_${s.id}"></span></h2>${s.c.map(([k,t,q,b])=>{const c=S.c[k]||{};return `<div class="crt" data-k="${k}"><div class="ct">${esc(t)}${b?'<span class="blk">Bloquant</span>':''}</div><div class="cq">${esc(q)}</div>
+  $('crit').innerHTML=secs().map(s=>`<div class="card sec"><h2><span class="sn">${n0[s.id]}</span>${esc(s.t)}<span class="ss" id="ss_${s.id}"></span></h2>${s.c.map(([k,t,q0,b,alt])=>{const c=S.c[k]||{},q=(alt&&alt[S.m])||q0;return `<div class="crt" data-k="${k}"><div class="ct">${esc(t)}${b?'<span class="blk">Bloquant</span>':''}</div><div class="cq">${esc(q)}</div>
    <div class="crow"><div class="ev">${['GO','RISQUE','NO GO'].map(e=>`<button data-e="${e}" class="${c.e===e?'on':''}">${e}</button>`).join('')}</div>
    <label class="wt">Poids<select>${[0,1,2,3].map(w=>`<option${W(k)===w?' selected':''}>${w}</option>`).join('')}</select></label></div>
-   <div class="nt"><input placeholder="Note / réponse" value="${esc(c.n)}"></div><div class="tp"></div></div>`}).join('')}</div>`).join('');
+   ${b?`<label class="chk drg" ${c.e==='NO GO'?'':'hidden'}><input type="checkbox" ${c.dg?'checked':''}>Dérogation : accord écrit DGA / DAF / DG obtenu</label>`:''}<div class="nt"><input placeholder="Note / réponse" value="${esc(c.n)}"></div><div class="tp"></div></div>`}).join('')}</div>`).join('');
   document.querySelectorAll(".crt").forEach(r=>{const k=r.dataset.k;
-    r.querySelectorAll('.ev button').forEach(b=>b.onclick=()=>{const c=C(k);c.e=c.e===b.dataset.e?'':b.dataset.e;r.querySelectorAll('.ev button').forEach(x=>x.classList.toggle('on',x.dataset.e===c.e));upd()});
+    r.querySelectorAll('.ev button').forEach(b=>b.onclick=()=>{const c=C(k);c.e=c.e===b.dataset.e?'':b.dataset.e;r.querySelectorAll('.ev button').forEach(x=>x.classList.toggle('on',x.dataset.e===c.e));const d=r.querySelector('.drg');if(d)d.hidden=c.e!=='NO GO';upd()});
+    const dg=r.querySelector('.drg input');if(dg)dg.onchange=()=>{C(k).dg=dg.checked;upd()};
     r.querySelector('select').onchange=e=>{C(k).w=+e.target.value;upd()};
     r.querySelector('.nt input').oninput=e=>{C(k).n=e.target.value;saveDraft()};
   });
@@ -497,9 +501,9 @@ function drawSigs(){
   });
 }
 function compute(){
-  let sc=0,mx=0,n=0,tot=0;const per={},blk=[];
+  let sc=0,mx=0,n=0,tot=0;const per={},blk=[],der=[];
   secs().forEach(s=>{let a=0,b=0;s.c.forEach(([k,t,q,bl])=>{const w=W(k),e=(S.c[k]||{}).e;tot++;if(e)n++;
-    const v=e==='GO'?w*2:e==='RISQUE'?w:0;a+=v;b+=w*2;if(bl&&e==='NO GO')blk.push(t)});per[s.id]={a,b};sc+=a;mx+=b});
+    const v=e==='GO'?w*2:e==='RISQUE'?w:0;a+=v;b+=w*2;if(bl&&e==='NO GO'){if((S.c[k]||{}).dg)der.push(t);else blk.push(t)}});per[s.id]={a,b};sc+=a;mx+=b});
   const p=mx?sc/mx:0,a=S.a,mt=pnum(a.mt),pen=pnum(a.pen),mg=pnum(a.mg);
   // validations requises
   const req=new Set(),why=[];
@@ -510,7 +514,9 @@ function compute(){
   if(pen>5){['DGA','DAF','DG'].forEach(x=>req.add(x));why.push('pénalités > 5 %')}
   if(isFinite(mg)&&mg<30&&mg>=27){['DGA','DAF'].forEach(x=>req.add(x));why.push('marge 27-30 %')}
   if(isFinite(mg)&&mg<27){req.add('DG');why.push('marge < 27 %')}
+  const plv=pnum(a.pl);if(isFinite(plv)&&isFinite(mt)&&plv>mt){req.add('DGA');req.add('Juriste');why.push('plafond D&I > montant contrat')}
   if(a.rec==='non'){req.add('DGA');req.add('Juriste');why.push('clause D&I asymétrique')}
+  if(der.length){['DGA','DAF','DG'].forEach(x=>req.add(x));why.push('dérogation sur critère bloquant')}
   if(!req.size)req.add('DCZ');
   const stop=ROLES.filter(([k,ab])=>req.has(ab)&&(S.sg[k]||{}).d==='NO GO').map(r=>r[1]);
   let v;
@@ -520,13 +526,16 @@ function compute(){
   else if(p>=.7)v={c:'go',t:'✅ GO : engagez les ressources',s:'Score ≥ 70 %.'};
   else if(p>=.45)v={c:'cond',t:'⚠ GO conditionnel : levez les risques',s:'Score entre 45 et 70 %. Levez les risques avant toute offre.'};
   else v={c:'no',t:'❌ NO GO : score insuffisant',s:'Score < 45 %. Refuser ou reporter.'};
-  return {sc,mx,p,n,tot,per,blk,req:[...req],why,v,mt,pen,mg};
+  if(der.length&&!stop.length&&!blk.length&&v.c!=='nd')v.s+=` Dérogation écrite : ${der.join(', ')}.`;
+  const miss=[['com','commercial'],['role','rôle / poste'],['ag','agence / région']].filter(([k])=>!(S.a[k]||'').trim()).map(x=>x[1]);
+  return {sc,mx,p,n,tot,per,blk,der,miss,req:[...req],why,v,mt,pen,mg};
 }
 function liabTips(R){
   const t=[],a=S.a;
   if(isFinite(R.pen))t.push(R.pen>5?['r',`Pénalités de ${NF(R.pen,1)} % : escalade DGA / DAF / DG obligatoire, ne pas signer sans accord écrit.`]:['g',`Pénalités de ${NF(R.pen,1)} % : DCZ autonome.`]);
   if(isFinite(R.mg))t.push(R.mg>=35?['g',`Marge de ${NF(R.mg,1)} % : standard, DCZ autonome.`]:R.mg>=30?['g',`Marge de ${NF(R.mg,1)} % : DCZ, sans escalade.`]:R.mg>=27?['w',`Marge de ${NF(R.mg,1)} % : DGA + DAF obligatoires, justification écrite.`]:['r',`Marge de ${NF(R.mg,1)} % : consultation DG obligatoire.`]);
   if(a.rec==='non')t.push(['r','Clause D&I asymétrique : négocier, ou escalade DGA + juriste obligatoire.']);
+  const pl=pnum(a.pl);if(isFinite(pl)&&isFinite(R.mt)&&pl>R.mt)t.push(['r',`Plafond D&I (${EUR(pl)}) supérieur au montant du contrat : escalade DGA + juriste obligatoire.`]);
   return t;
 }
 function upd(){
@@ -546,6 +555,7 @@ function upd(){
    <div class="secs">${secs().map(s=>{const x=R.per[s.id],q=x.b?x.a/x.b:0;return `<div><span>${sv[s.id]}</span><i><u style="width:${q*100}%"></u></i><b>${x.b?Math.round(q*100)+' %':'—'}</b></div>`}).join('')}</div>
    <div class="rh">Validations requises</div><div class="vl">${R.req.map(x=>`<span>${x}</span>`).join('')}</div>
    <div class="hint">${R.why.length?'Car : '+esc(R.why.join(', '))+'.':'Montant ≤ 500 k€, pénalités et marge dans les seuils : DCZ autonome.'}</div>
+   ${R.miss.length?`<div class="tip w">Saisie obligatoire : ${R.miss.join(', ')}.</div>`:''}
    <div class="hint">${MODE_S[S.m]}</div>`;
   saveDraft();
 }
@@ -566,8 +576,9 @@ function recap(){
   L.push(`Commercial : ${a.com||'—'}${a.role?' ('+a.role+')':''}${a.ag?' · '+a.ag:''} · Date : ${a.date?new Date(a.date).toLocaleDateString('fr-FR'):'—'}`);
   L.push('',`VERDICT : ${R.v.t.replace(/^[^A-Za-zÀ-ÿ]+/,'')} (${Math.round(R.p*100)} %, ${R.sc}/${R.mx} pts)`);
   if(R.blk.length)L.push(`Critères bloquants en NO GO : ${R.blk.join(', ')}`);
+  if(R.der.length)L.push(`Dérogations écrites (DGA/DAF/DG) : ${R.der.join(', ')}`);
   L.push(`Validations requises : ${R.req.join(', ')}`);
-  if(isFinite(R.pen)||isFinite(R.mg))L.push(`Pénalités : ${isFinite(R.pen)?NF(R.pen,1)+' %':'—'} · Marge : ${isFinite(R.mg)?NF(R.mg,1)+' %':'—'} · Clause D&I : ${a.rec==='oui'?'réciproque':a.rec==='non'?'asymétrique':'à vérifier'}`);
+  if(isFinite(R.pen)||isFinite(R.mg))L.push(`Pénalités : ${isFinite(R.pen)?NF(R.pen,1)+' %':'—'} · Marge : ${isFinite(R.mg)?NF(R.mg,1)+' %':'—'} · Plafond D&I : ${isFinite(pnum(a.pl))?EUR(pnum(a.pl)):'montant contrat'} · Clause D&I : ${a.rec==='oui'?'réciproque':a.rec==='non'?'asymétrique':'à vérifier'}`);
   secs().forEach(s=>{L.push('',s.t.toUpperCase());s.c.forEach(([k,t])=>{const c=S.c[k]||{};L.push(`- ${t} : ${c.e||'non évalué'}${W(k)!==3?' (poids '+W(k)+')':''}${c.n?' – '+c.n:''}`)})});
   if(S.l.com)L.push('',`Commentaire juridique : ${S.l.com}`);
   if(S.l.val)L.push(`Validation juridique / DAF : ${S.l.val}`);
@@ -583,13 +594,14 @@ $('bPdf').onclick=()=>{const R=compute(),a=S.a,logo=(document.querySelector('.wm
    <div class="band"><div><small>Montant</small><b>${EUR(R.mt)}</b></div><div><small>Commercial</small><b>${v(a.com)}</b></div><div><small>Agence / région</small><b>${v(a.ag)}</b></div><div><small>DCZ / DAF</small><b>${v([a.dcz,a.daf].filter(Boolean).join(' / '))}</b></div></div>
    <div class="vd" style="background:${VC[R.v.c]}"><div>${esc(R.v.t)}<div style="font-weight:600;font-size:10px;opacity:.9">${esc(R.v.s)}</div></div><span>${Math.round(R.p*100)} %</span></div>
    <table><tr><th>Critère</th><th style="width:40px">Poids</th><th style="width:58px">Éval.</th><th>Note / réponse</th><th style="width:56px">Score</th></tr>
-   ${secs().map(s=>`<tr class="s"><td colspan="5">${esc(s.t)}</td></tr>`+s.c.map(([k,t,q,b])=>{const c=S.c[k]||{},w=W(k),sc=c.e==='GO'?w*2:c.e==='RISQUE'?w:0;return `<tr><td><b>${esc(t)}</b>${b?' <span style="color:#b42318;font-weight:800">(bloquant)</span>':''}</td><td>${w}</td><td class="e" style="color:${EC[c.e]||'#9aa6b8'}">${c.e||'—'}</td><td>${v(c.n)}</td><td>${c.e?sc:'—'}</td></tr>`}).join('')).join('')}
+   ${secs().map(s=>`<tr class="s"><td colspan="5">${esc(s.t)}</td></tr>`+s.c.map(([k,t,q,b])=>{const c=S.c[k]||{},w=W(k),sc=c.e==='GO'?w*2:c.e==='RISQUE'?w:0;return `<tr><td><b>${esc(t)}</b>${b?' <span style="color:#b42318;font-weight:800">(bloquant)</span>':''}${c.dg&&c.e==='NO GO'?' <span style="color:#8a5a00;font-weight:800">· dérogation écrite</span>':''}</td><td>${w}</td><td class="e" style="color:${EC[c.e]||'#9aa6b8'}">${c.e||'—'}</td><td>${v(c.n)}</td><td>${c.e?sc:'—'}</td></tr>`}).join('')).join('')}
    <tr class="s"><td colspan="4">Score pondéré global</td><td>${R.sc} / ${R.mx}</td></tr></table>
-   <h2>Liabilities</h2><div class="kv"><div><span>Pénalités retenues</span><b>${isFinite(R.pen)?NF(R.pen,1)+' %':'—'}</b></div><div><span>Marge affaire</span><b>${isFinite(R.mg)?NF(R.mg,1)+' %':'—'}</b></div><div><span>Plafond D&amp;I</span><b>Montant contrat · ${a.rec==='oui'?'réciproque':a.rec==='non'?'asymétrique':'à vérifier'}</b></div><div><span>Validations requises</span><b>${esc(R.req.join(', '))}</b></div><div><span>Commentaire juridique</span><b>${v(S.l.com)}</b></div><div><span>Validation jur. / DAF</span><b>${v(S.l.val)}</b></div></div>
+   <h2>Liabilities</h2><div class="kv"><div><span>Pénalités retenues</span><b>${isFinite(R.pen)?NF(R.pen,1)+' %':'—'}</b></div><div><span>Marge affaire</span><b>${isFinite(R.mg)?NF(R.mg,1)+' %':'—'}</b></div><div><span>Plafond D&amp;I</span><b>${isFinite(pnum(a.pl))?EUR(pnum(a.pl)):'Montant contrat'} · ${a.rec==='oui'?'réciproque':a.rec==='non'?'asymétrique':'à vérifier'}</b></div><div><span>Validations requises</span><b>${esc(R.req.join(', '))}</b></div><div><span>Commentaire juridique</span><b>${v(S.l.com)}</b></div><div><span>Validation jur. / DAF</span><b>${v(S.l.val)}</b></div></div>
    <h2>Décision &amp; signatures</h2><div class="sig">${ROLES.map(([k,ab,lb])=>{const g=S.sg[k]||{};return `<div><small>${ab} · ${lb}${R.req.includes(ab)?' · requis':''}</small><b>${v(g.n)}</b> · ${g.d?`<b style="color:${EC[g.d==='Conditionnel'?'RISQUE':g.d]}">${esc(g.d)}</b>`:'Décision : ______'}${g.c?`<div>${esc(g.c)}</div>`:''}${g.a?`<div>Actions : ${esc(g.a)}</div>`:''}<div style="margin-top:8px;color:#9aa6b8">Signature :</div></div>`}).join('')}</div>
    <div class="ft"><span>Airflux · Document interne et confidentiel</span><span>Établi le ${new Date().toLocaleDateString('fr-FR')}</span></div>`;
   window.print()};
 function saveMx(){if(!(S.a.cli||'').trim()){toast('Indique le client');$('aCli').focus();return}
+  const R0=compute();if(R0.miss.length)toast('Pense à compléter : '+R0.miss.join(', '));
   if(!S.id)S.id=uid();S.up=new Date().toISOString();const c=JSON.parse(JSON.stringify(S)),i=LIST.findIndex(x=>x.id===S.id);if(i>=0)LIST[i]=c;else LIST.unshift(c);
   try{localStorage.setItem(LKEY,JSON.stringify(LIST))}catch(e){toast('Enregistrement impossible');return}saveDraft();drawHist();toast('Matrice enregistrée')}
 $('bSave').onclick=saveMx;
