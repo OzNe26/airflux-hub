@@ -114,6 +114,31 @@ main{max-width:760px}
 .objbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:10px;background:#fff7ec;border:1.5px dashed #f2a33a;color:#b05a00;border-radius:12px;padding:13px 16px;font-weight:700;font-size:14.5px;cursor:pointer}
 .objbtn:hover{background:#ffefd9}
 .backtr{display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
+.esteps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:4px 0 14px}
+.esteps button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;line-height:1.2}
+.esteps button b{display:block;font-size:15px}
+.esteps button.done{border-color:#b9dcc8;color:var(--green);background:var(--greenbg)}
+.esteps button.cur{background:var(--navy);border-color:var(--navy);color:#fff}
+@media(max-width:560px){.esteps{grid-template-columns:repeat(3,1fr)}}
+#ev .ph{font-size:20px;font-weight:800;margin:6px 0 2px}#ev .phs{color:var(--muted);font-size:14px;margin:0 0 12px}
+#ev .say{background:#fff;border:1px solid var(--line);border-left:5px solid var(--navy);border-radius:14px;padding:16px 18px;font-size:16.5px;line-height:1.55;margin:0 0 10px}
+#ev .say b.nm{color:var(--navy);background:#e8edf6;border-radius:5px;padding:0 4px}
+#ev .say i.ph2{font-style:normal;color:var(--red);font-weight:700}
+#ev h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 8px}
+#ev ul.tips{margin:6px 0 10px;padding-left:20px;font-size:14.5px;line-height:1.55}
+.qbl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px}
+.qbl h4{margin:0 0 6px;font-size:14px;color:var(--navy)}
+.qq{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;font-size:15px;line-height:1.45;cursor:pointer;border-radius:8px}
+.qq:hover{background:var(--soft)}.qq input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--navy)}
+.qq.ok span{color:var(--muted);text-decoration:line-through}
+.qbl textarea{margin-top:6px}
+.need{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0;font-size:15px;font-weight:600;cursor:pointer}
+.need.on{border-color:var(--navy);background:#e8edf6}
+.need i{width:18px;height:18px;border:2px solid var(--line);border-radius:5px;flex:none}.need.on i{background:var(--navy);border-color:var(--navy)}
+.arg{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:8px 0}
+.arg h4{margin:0 0 8px;font-size:15px}
+.arg p{margin:4px 0;font-size:15px;line-height:1.5}.arg p b{color:var(--red);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
+.good{background:var(--navy);color:#fff;border:0;border-radius:12px;width:100%;padding:14px 16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px}
 </style>
 </head>
 <body>
@@ -126,6 +151,7 @@ main{max-width:760px}
   </div>
   <div class="vtabs">
   <button class="vtab on" data-v="trame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>Trame</button>
+  <button class="vtab" data-v="entretien"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Entretien</button>
   <button class="vtab" data-v="objections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4M12 14h.01"/></svg>Objections</button>
 </div>
 </header>
@@ -142,6 +168,16 @@ main{max-width:760px}
   <div class="links"><a href="../questions/">Questions découverte →</a><a href="../emails/">Modèles d’e-mails →</a></div>
   
 
+</section>
+<section class="view" id="ev">
+  <button class="btn backtr" id="toTrame2">← Revenir à la trame</button>
+  <div class="intro"><h1>Guide d’entretien</h1><p>Tu as la bonne personne au téléphone (responsable maintenance, technique, travaux neufs…). Suis les 6 étapes dans l’ordre.</p></div>
+  <div class="card ctx">
+    <div><span class="lbl">Civilité</span><div class="civ" id="civ2"><button data-c="Monsieur" class="on">M.</button><button data-c="Madame">Mme</button></div></div>
+    <div><label class="lbl" for="nom2">Nom du contact</label><input class="inp" id="nom2" placeholder="Ex. Dupont" autocomplete="off"></div>
+  </div>
+  <div class="esteps" id="esteps"></div>
+  <div id="eapp"></div>
 </section>
 <section class="view" id="ov">
 
@@ -175,7 +211,7 @@ async function copyText(t,msg){
 
 function showView(v,focus){
   document.querySelectorAll('.vtab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
-  $('#tv').classList.toggle('on',v==='trame');$('#ov').classList.toggle('on',v==='objections');
+  $('#tv').classList.toggle('on',v==='trame');$('#ov').classList.toggle('on',v==='objections');$('#ev').classList.toggle('on',v==='entretien');
   if(location.hash!=='#'+v)history.replaceState(null,'',v==='trame'?location.pathname:'#'+v);
   scrollTo(0,0);
   if(focus)setTimeout(()=>$('#q').focus(),60);
@@ -212,11 +248,13 @@ function draw(){
     if(n.next)h+=`<button class="ch" data-k="${n.next}">Continuer</button>`;
     else n.o.forEach(o=>h+=`<button class="ch" data-k="${o[1]}">${esc(o[0])}</button>`);
     if(k!=='interet')h+=`<button class="ch rdv" data-k="interet">Proposer un rendez-vous</button>`;}
+  if(!n.end)h+=`<button class="good" id="goodBtn">J’ai la bonne personne → guide d’entretien</button>`;
   if(!n.end)h+=`<button class="objbtn" id="objBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4M12 14h.01"/></svg>Il fait une autre objection</button>`;
   h+=`<div class="nav"><button class="btn" id="b">← Retour</button><button class="btn pri" id="r">Nouvel appel</button></div>`;
   $('#app').innerHTML=h;
   document.querySelectorAll('.ch').forEach(b=>b.onclick=()=>{hist.push(b.dataset.k);draw();scrollTo({top:0,behavior:'smooth'})});
   const ob=$('#objBtn');if(ob)ob.onclick=()=>showView('objections',true);
+  const gb=$('#goodBtn');if(gb)gb.onclick=()=>{$('#nom2').value=$('#nom').value;setCiv2(civ);showView('entretien');drawE()};
   $('#b').onclick=()=>{if(hist.length>1){hist.pop();draw()}};
   $('#r').onclick=()=>{hist=['start'];$('#nom').value='';draw();scrollTo(0,0)};
 }
@@ -263,7 +301,59 @@ $('#q').oninput=drawObj;
 drawObj();
 
 $('#toTrame').onclick=()=>showView('trame');
-const _hv=()=>({'#objections':'objections'})[location.hash]||'trame';
+/* ---------- Guide d'entretien (bonne personne au téléphone) ---------- */
+let civ2='Monsieur',ep=0;const EV={c:{},n:{},need:{}};
+function setCiv2(c){civ2=c;document.querySelectorAll('#civ2 button').forEach(x=>x.classList.toggle('on',x.dataset.c===c))}
+document.querySelectorAll('#civ2 button').forEach(b=>b.onclick=()=>{setCiv2(b.dataset.c);drawE()});
+$('#nom2').oninput=()=>drawE(true);
+$('#toTrame2').onclick=()=>showView('trame');
+function fill2(t){const n=$('#nom2').value.trim();return esc(t).replace(/\[Civ\] \[Nom\]/g,`<b class="nm">${esc(civ2)} ${esc(n||'[Nom]')}</b>`).replace(/\[([^\]]+)\]/g,'<i class="ph2">[$1]</i>')}
+const SAY=(t,lab)=>`<div class="say"><small>${lab||'Dis'}</small>${fill2(t)}</div>`;
+const GOAL=t=>`<div class="goal">${CHK}<span>Objectif : ${esc(t)}</span></div>`;
+const TIPS=a=>`<ul class="tips">${a.map(x=>'<li>'+esc(x)+'</li>').join('')}</ul>`;
+const DQ=[
+ {k:'inst',h:'L’installation',q:['Combien de compresseurs avez-vous sur le site, et de quelle marque ?','Ils ont quel âge environ, et quelle puissance ?','Vous avez des sécheurs, des filtres, un réservoir ? Le réseau est en quoi (acier, alu…) ?'],n:'Ex. 2 compresseurs à vis de 15 ans, sécheur frigorifique'},
+ {k:'usage',h:'L’utilisation',q:['L’air comprimé vous sert à quoi exactement dans votre production ?','Il tourne combien d’heures par jour, et le week-end ?','Que se passe-t-il pour la production si le compresseur s’arrête ?'],n:'Ex. emballage, 2×8, arrêt = ligne bloquée'},
+ {k:'main',h:'L’entretien',q:['Comment est assurée la maintenance aujourd’hui : en interne ou par un prestataire ?','Vous avez un contrat ? Il arrive à échéance quand ?','Vous êtes satisfait des délais d’intervention ?'],n:'Ex. contrat avec X jusqu’en juin, délais longs'},
+ {k:'pb',h:'Les problèmes',q:['Vous avez eu des pannes ou des arrêts ces derniers mois ?','Vous avez des fuites, des chutes de pression, de l’eau ou de l’huile dans le réseau ?','Vous avez une idée de ce que l’air comprimé vous coûte en électricité ?'],n:'Ex. 2 pannes cet hiver, pression qui chute en bout de ligne'},
+ {k:'proj',h:'Les projets',q:['Vous avez des projets : extension, nouvelle machine, remplacement d’un compresseur ?','Côté froid : vous avez des besoins en eau glacée ou en azote ?','C’est prévu pour quand, et le budget est déjà décidé ?'],n:'Ex. nouvelle ligne en 2027, groupe froid à remplacer'},
+ {k:'dec',h:'La décision',q:['À part vous, qui participe à ce type de décision ?','Comment ça se passe chez vous pour choisir un prestataire : devis, appel d’offres, siège ?'],n:'Ex. décision avec le directeur d’usine, 3 devis'}
+];
+const NEEDS=[
+ {k:'panne',l:'Pannes, arrêts de production',c:'Contrat de maintenance préventive avec visites planifiées, et intervention de nos techniciens en cas de panne.',a:'On anticipe les pannes au lieu de les subir : les pièces d’usure sont changées avant de lâcher.',b:'Vous sécurisez votre production : moins d’arrêts imprévus et moins de stress pour votre équipe.'},
+ {k:'conso',l:'Facture d’électricité, fuites',c:'Recherche de fuites sur votre réseau et bilan de votre consommation d’air comprimé.',a:'On repère où l’air est perdu et on chiffre ce que ça vous coûte.',b:'Vous baissez votre facture d’électricité, avec des chiffres concrets pour justifier les travaux.'},
+ {k:'vieux',l:'Compresseur ancien à remplacer',c:'Étude de vos besoins réels avant de proposer un compresseur adapté (taille, variation de vitesse).',a:'Le matériel est dimensionné pour votre consommation, pas surdimensionné.',b:'Vous investissez au juste prix et vous consommez moins pendant toute la durée de vie de la machine.'},
+ {k:'presta',l:'Pas satisfait du prestataire actuel',c:'Une équipe de techniciens dans la région, avec un interlocuteur dédié.',a:'Vous savez qui appeler, et on connaît votre installation.',b:'Des interventions plus rapides et un suivi dans la durée, sans avoir à tout réexpliquer.'},
+ {k:'reseau',l:'Pression, qualité d’air, réseau',c:'Diagnostic du réseau : pression, sécheurs, filtration, purgeurs.',a:'On trouve l’origine des chutes de pression ou de l’eau dans les conduites.',b:'Un air de bonne qualité au bon endroit : moins de pannes sur vos machines et moins de rebuts.'},
+ {k:'projet',l:'Projet d’extension, nouvelle ligne',c:'Accompagnement du projet de A à Z : étude, installation du compresseur et du réseau, mise en service.',a:'Un seul interlocuteur pour tout le projet, qui prévoit aussi les besoins futurs.',b:'Votre nouvelle installation démarre dans les temps et elle est prête pour la suite.'},
+ {k:'froid',l:'Besoins en eau glacée, froid',c:'Airflux intervient aussi sur l’eau glacée (groupes froid).',a:'Un seul prestataire pour vos utilités : air comprimé et eau glacée.',b:'Moins de prestataires à gérer et une vision globale de vos coûts d’énergie.'}
+];
+const PH=[
+ {t:'Présentation',s:'Se présenter et obtenir son accord',r:()=>SAY("Bonjour [Civ] [Nom], Enzo Drouot de la société Airflux. Nous sommes spécialisés dans l’air comprimé : installation, maintenance et réseaux d’air, et nous intervenons aussi sur l’eau glacée. Je vous appelle car vous vous occupez de la maintenance sur votre site. Vous avez deux minutes à m’accorder ?")+GOAL("En moins de 30 secondes : qui tu es, ce que fait Airflux, pourquoi lui. Puis obtenir un « oui » pour continuer.")+'<h3>Conseils</h3>'+TIPS(['Souris en parlant : ça s’entend au téléphone.','Parle lentement et dis son nom, ça capte son attention.','S’il n’a pas le temps : fixe tout de suite un créneau précis pour rappeler.'])},
+ {t:'Implication',s:'Lui montrer que le sujet le concerne',r:()=>SAY("Je vous pose la question parce que beaucoup d’industriels de la région nous parlent du coût de leur air comprimé : c’est souvent un des postes d’électricité les plus importants d’une usine, et une partie de l’air produit se perd dans les fuites. Est-ce que c’est un sujet chez vous aussi ?")+SAY("Sur un site comme le vôtre, qu’est-ce qui se passe pour votre production si le compresseur s’arrête un matin ?","Ou dis")+GOAL("Le faire réagir : il doit se dire « ça me concerne ». Laisse-le parler, c’est lui qui doit trouver l’enjeu.")+'<h3>Conseils</h3>'+TIPS(['Pose la question, puis tais-toi : le silence le pousse à répondre.','Choisis l’accroche selon son secteur : coût d’énergie, arrêts de production, qualité de l’air.','Note les mots qu’il emploie, tu les réutiliseras dans la reformulation.'])},
+ {t:'Découverte',s:'Poser des questions ouvertes et noter',r:()=>GOAL("Comprendre son installation, ses problèmes et ses projets. Il doit parler 70 % du temps.")+'<p class="phs">Coche les questions posées et note ses réponses : elles remplissent automatiquement la reformulation.</p>'+DQ.map(b=>`<div class="qbl"><h4>${esc(b.h)}</h4>${b.q.map((q,i)=>{const id=b.k+i;return `<label class="qq${EV.c[id]?' ok':''}"><input type="checkbox" data-c="${id}"${EV.c[id]?' checked':''}><span>${esc(q)}</span></label>`}).join('')}<textarea class="inp" rows="2" data-n="${b.k}" placeholder="${esc(b.n)}">${esc(EV.n[b.k]||'')}</textarea></div>`).join('')+'<h3>Conseils</h3>'+TIPS(['Des questions ouvertes : « comment », « qu’est-ce que », « combien »… pas de oui/non.','Une question à la fois, et rebondis sur sa réponse : « c’est-à-dire ? », « et ensuite ? ».','Ne propose rien pendant la découverte : tu écoutes.'])},
+ {t:'Reformulation',s:'Résumer pour vérifier que tu as compris',r:()=>{const N2=EV.n,p=[];
+   if(N2.inst)p.push('sur votre site vous avez '+N2.inst);if(N2.usage)p.push('l’air comprimé vous sert pour '+N2.usage);if(N2.main)p.push('côté entretien, '+N2.main);if(N2.pb)p.push('ce qui vous gêne aujourd’hui, c’est '+N2.pb);if(N2.proj)p.push('et vous avez comme projet '+N2.proj);
+   const auto=p.length?'Si je résume bien, [Civ] [Nom] : '+p.join(', ')+'. C’est bien ça ?':'';
+   return (auto?SAY(auto,'Dis (rempli avec tes notes)'):'')+SAY("Si je résume bien, [Civ] [Nom] : vous avez [son installation], la maintenance est assurée par [prestataire ou interne], et ce qui vous préoccupe aujourd’hui, c’est [son problème principal]. C’est bien ça ?",auto?'Modèle':'Dis')+SAY("Est-ce qu’il y a autre chose d’important que je devrais savoir ?","Puis demande")+GOAL("Obtenir un « oui, c’est ça ». Il se sent écouté et il confirme lui-même son besoin.")+'<h3>Conseils</h3>'+TIPS(['Reprends ses mots à lui, pas tes mots techniques.','S’il corrige, c’est très bien : note la correction.','Termine toujours par une question fermée : « c’est bien ça ? ».'])}},
+ {t:'Argumentation',s:'Répondre à SES besoins, pas à tout',r:()=>'<p class="phs">Coche le ou les besoins qu’il a exprimés. Pour chacun : ce qu’on fait, ce que ça change, ce qu’il y gagne.</p>'+NEEDS.map(x=>`<button class="need${EV.need[x.k]?' on':''}" data-nd="${x.k}"><i></i>${esc(x.l)}</button>`).join('')+NEEDS.filter(x=>EV.need[x.k]).map(x=>`<div class="arg"><h4>${esc(x.l)}</h4><p><b>Ce qu’on fait</b>${esc(x.c)}</p><p><b>Ce que ça change</b>${esc(x.a)}</p><p><b>Pour vous</b>${esc(x.b)}</p></div>`).join('')+SAY("Vous m’avez dit que [son problème]. Justement, chez Airflux, [ce qu’on fait]. Concrètement, pour vous, ça veut dire [le bénéfice]. Qu’est-ce que vous en pensez ?","Construis ta phrase")+GOAL("Relier chaque argument à un besoin qu’il a dit lui-même. Deux ou trois arguments suffisent.")+'<h3>Conseils</h3>'+TIPS(['Commence par son besoin le plus important.','Après chaque argument, vérifie : « ça répond à votre question ? ».','S’il fait une objection, utilise l’onglet Objections.'])},
+ {t:'Conclusion',s:'Obtenir le rendez-vous',r:()=>SAY("Le plus simple serait qu’un de nos techniciens passe voir votre installation sur place, pour vous faire une proposition précise. Je vous propose mardi matin ou jeudi après-midi, qu’est-ce qui vous arrange le mieux ?")+SAY("Parfait. Je récapitule : rendez-vous le [jour] à [heure], sur votre site de [ville], avec [nom du technicien]. Je vous envoie une confirmation par mail à quelle adresse ? Merci beaucoup [Civ] [Nom], bonne journée !","Quand il accepte")+SAY("Je comprends. Je vous envoie une présentation par mail aujourd’hui, et je vous rappelle [jour] pour avoir votre avis. Ça vous va ?","S’il ne veut pas de rendez-vous")+GOAL("Une date, une heure, un lieu, les participants et son e-mail. Sinon : un rappel daté.")+'<h3>Conseils</h3>'+TIPS(['Toujours deux créneaux au choix, jamais « quand vous voulez ».','Note tout de suite le rendez-vous dans Salesforce (Suivi d’appel : RDV pris).','Envoie la confirmation avec le modèle « Confirmation de rendez-vous » des Modèles d’e-mails.'])}
+];
+function drawE(keepFocus){
+  $('#esteps').innerHTML=PH.map((p,i)=>`<button class="${i===ep?'cur':i<ep?'done':''}" data-i="${i}"><b>${i+1}</b>${esc(p.t)}</button>`).join('');
+  document.querySelectorAll('#esteps button').forEach(b=>b.onclick=()=>{ep=+b.dataset.i;drawE();scrollTo({top:0,behavior:'smooth'})});
+  const p=PH[ep];
+  $('#eapp').innerHTML=`<div class="ph">${ep+1}. ${esc(p.t)}</div><p class="phs">${esc(p.s)}</p>`+p.r()+
+   `<div class="nav"><button class="btn" id="eb"${ep?'':' disabled'}>← Étape précédente</button>${ep<PH.length-1?`<button class="btn pri" id="en">${esc(PH[ep+1].t)} →</button>`:`<button class="btn pri" id="er">Nouvel appel</button>`}</div>`;
+  $('#eb').onclick=()=>{if(ep){ep--;drawE();scrollTo(0,0)}};
+  const en=$('#en');if(en)en.onclick=()=>{ep++;drawE();scrollTo(0,0)};
+  const er=$('#er');if(er)er.onclick=()=>{ep=0;EV.c={};EV.n={};EV.need={};$('#nom2').value='';drawE();scrollTo(0,0)};
+  document.querySelectorAll('#eapp [data-c]').forEach(c=>c.onchange=()=>{EV.c[c.dataset.c]=c.checked;c.parentElement.classList.toggle('ok',c.checked)});
+  document.querySelectorAll('#eapp [data-n]').forEach(t=>t.oninput=()=>{EV.n[t.dataset.n]=t.value.trim()});
+  document.querySelectorAll('#eapp [data-nd]').forEach(b=>b.onclick=()=>{EV.need[b.dataset.nd]=!EV.need[b.dataset.nd];drawE()});
+}
+drawE();
+const _hv=()=>({'#objections':'objections','#entretien':'entretien'})[location.hash]||'trame';
 addEventListener('hashchange',()=>showView(_hv()));
 if(_hv()!=='trame')showView(_hv());
 </script>
