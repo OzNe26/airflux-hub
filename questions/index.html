@@ -173,94 +173,7 @@ const FICHES=[
   {g:'La suite',t:'Sous quel délai souhaiteriez-vous avancer ?',type:'text',short:true},
   {t:'Avez-vous déjà un budget en tête ?',type:'text',short:true},
   {t:'Seriez-vous d’accord pour qu’un technicien passe faire un état des lieux ?',type:'one',o:['Oui','Non','À rappeler']}
- ]},
-{id:'air',n:'2',title:'Air comprimé',sub:'Découvrir l’usage de l’air comprimé chez le prospect.',
- qs:[
-  {t:'Avez-vous une source d’énergie air comprimé dans vos locaux ?',type:'one',o:['Oui','Non']},
-  {t:'Quel type de compresseur possédez-vous ?',type:'multi',o:['À piston','À vis','Thermique','Chantier']},
-  {t:'Pour quelles applications l’utilisez-vous ?',type:'multi',o:['Soufflette / gonfleur','Pistolet peinture','Clé à choc','Perçage / vissage','Meulage / ponçage','Burinage','Sablage','Rivetage / popeuse'],other:'Autres'},
-  {t:'Pour combien de postes de travail l’utilisez-vous ?',type:'one',o:['Moins de 3','Plus de 3']},
-  {t:'Quelle est la fréquence d’utilisation des outils ?',type:'one',o:['Occasionnelle (maintenance)','Semi-intensive (moins de 2 h / jour)','Intensive (production)']},
-  {t:'Comment est constitué votre réseau d’air ?',hint:'si plus de 3 postes',type:'one',o:['Ceinture acier galvanisé','Ceinture PVC pression','Ceinture aluminium'],other:'Autres'},
-  {t:'De quelle qualité d’air avez-vous besoin ?',type:'multi',o:['Filtrée','Séchée']},
-  {t:'Quelles sont les améliorations que vous souhaitez ?',type:'text'},
-  {t:'Sous quels délais souhaitez-vous réaliser ce projet ?',type:'text',short:true},
-  {t:'Quelles sont les personnes concernées par ce projet ?',type:'contacts',roles:['Utilisateur','Acheteur','Prescripteur','Décideur','Payeur']},
-  {t:'Comment souhaitez-vous procéder pour l’étude de vos besoins ?',type:'text'},
-  {t:'Comment souhaitez-vous financer ce projet ?',type:'one',o:['LOA','Acquisition propre']},
-  {t:'Quand souhaitez-vous avoir une offre ?',type:'text',short:true}
- ],
- memo:{
-  def:['Source d’énergie qui permet de remplacer l’électricité pour l’utilisation d’outillage d’atelier. Cette solution apporte économie et fiabilité.'],
-  app:['Faire fonctionner toutes les machines et l’outillage qui nécessitent cette énergie.','<b>Le marché :</b> toutes les entreprises utilisant de l’air comprimé, principalement industrie, métallerie, bâtiment, plomberie, menuiserie et collectivités.'],
-  lex:[['Compresseur à piston','Pour les petites utilisations. Mobile ou fixe mais bruyant. Équipé de cuves horizontales de 6 à 500 litres.'],
-       ['Compresseur à vis','Produit en développement, économique, silencieux, avec une très grande longévité. Cuves horizontales pour les petits modèles, verticales pour les grosses puissances (500 et 900 litres les plus utilisées).'],
-       ['CV ou kW','1 CV = 0,75 kW. Jusqu’à 3 CV en 230 V monophasé, à partir de 4 CV en triphasé 400 V.'],
-       ['m³/h et l/min','Le m³/h est utilisé pour les compresseurs, le l/min pour les outils.'],
-       ['Débit','Débit engendré = air aspiré ; débit réel = débit restitué. Le débit restitué est le seul à prendre en compte.'],
-       ['Pression','En bar. La pression de service la plus courante est de 6 bar. Les compresseurs vont généralement de 6 à 13 bar.'],
-       ['Décibel (dB)','Unité de mesure du bruit. Un compresseur à moins de 70 dB est souvent dit « silencieux ».'],
-       ['Ceinture','Réseau de distribution de l’air comprimé qui fait généralement le tour de l’atelier. Hauteur d’installation minimum 3 m, généralement sous le plafond.'],
-       ['FRL (filtre régulateur lubrificateur)','Nécessaire pour protéger l’outil des impuretés et de l’humidité produites par le compresseur.']],
-  pot:['Marché de renouvellement de l’outillage important.','Les compresseurs à piston sont de plus en plus remplacés par des compresseurs à vis.'],
-  arg:['Nous travaillons avec les leaders du marché.'],
-  conc:['Fabricants en direct','Revendeurs spécialistes air comprimé','Oradis','AD'],
-  fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
-  rem:['Les grandes marques Worthington Creyssensac, Abac, DeVilbiss, Mauguière font partie du groupe Atlas Copco.','Principales marques d’outillage : Ingersoll Rand, Atlas Copco, Desoutter, Chicago Pneumatic, Cedrey, Rodcraft…','Principales marques de réseaux et accessoires : Prevost, Transair (Legris).']
- }},
-{id:'comp',n:'3',title:'Compresseur',sub:'Qualifier un besoin de compresseur neuf ou de remplacement.',
- qs:[
-  {t:'Dans quel environnement allez-vous utiliser ce compresseur ?',type:'one',o:['Atelier','Chantier']},
-  {t:'Pour quelle utilisation vous servez-vous de votre compresseur ?',type:'multi',o:['Pour tout l’atelier','Alimentation machine','La peinture','Petits accessoires (type soufflette)','Outils pneumatiques'],other:'Autres'},
-  {t:'Quelle puissance souhaitez-vous ?',type:'one',o:['2 à 10 CV','10 à 50 CV'],other:'Autres'},
-  {t:'Pour combien d’opérateurs ?',type:'one',o:['1 seule personne','2 à 5','5 et plus'],other:'Précisez'},
-  {t:'Quel type de compresseur envisagez-vous d’acquérir ?',type:'one',o:['À pistons','À vis']},
-  {t:'Quel type d’alimentation envisagez-vous ?',hint:'si pistons',type:'one',o:['230 V','400 V','Thermique essence','Thermique diesel']},
-  {t:'Quel type d’alimentation envisagez-vous ?',hint:'si vis',type:'one',o:['400 V','Thermique diesel'],other:'Autres'},
-  {t:'Comment souhaitez-vous procéder pour l’étude de vos besoins ?',type:'text'},
-  {t:'Quand souhaitez-vous avoir une offre ?',type:'text',short:true},
-  {t:'Quels sont vos critères de sélection pour un fournisseur ?',type:'text'}
- ],
- memo:{
-  def:['Source d’énergie qui fabrique de l’air comprimé à une pression moyenne de 6 à 13 bar. Le compresseur est composé d’un élément moteur, électrique ou thermique, et d’un compresseur à pistons ou à vis.'],
-  app:['Tous les outils ou machines ayant besoin de cette source d’énergie.','<b>Le marché :</b> tous corps de métier, de l’artisan à l’industrie.'],
-  lex:[['1 CV ou 0,75 kW','Produit environ 5 m³ d’air par heure.'],
-       ['Débit','Le débit restitué par le compresseur est le seul à prendre en considération.'],
-       ['Compresseur à pistons : composants','Un réservoir (6 à 500 litres) + un bloc moteur-compresseur + un pressostat avec son manomètre.'],
-       ['Compresseur à vis : composants','Un réservoir de 500 à 900 litres (souvent vertical et indépendant du compresseur) + un bloc moteur-compresseur à vis + filtration et séchage éventuels.'],
-       ['Séchage d’air','Plus ou moins précis, à définir selon l’application.']],
-  pot:['Le petit compresseur, en particulier monophasé, doit être remplacé fréquemment car il est souvent trop sollicité.','Le compresseur à vis a un meilleur rendement et est plus économique à puissance égale (CV ou kW).'],
-  arg:['Nous avons des compresseurs pour la maintenance et pour la production, avec les leaders du marché.'],
-  conc:['Oradis','AD','La GSB (petits compresseurs à pistons)'],
-  fab:['Atlas Copco','Ingersoll Rand','Kaeser','CompAir'],
-  rem:['Plus la vitesse du compresseur est lente, plus le produit est de qualité et offre une meilleure longévité.']
- }},
-{id:'res',n:'4',title:'Réseau d’air',sub:'Qualifier un projet de réseau de distribution d’air comprimé.',
- qs:[
-  {t:'Combien avez-vous de postes de travail à desservir ?',type:'text',short:true},
-  {t:'Quelle est la longueur de la tuyauterie de votre réseau ?',type:'text',short:true},
-  {t:'Quelle est la puissance du compresseur en place ?',type:'one',o:['Pas de compresseur','15 CV – diamètre 30','30 CV – diamètre 40','50 CV – diamètre 50'],other:'Autres'},
-  {t:'Quels sont les accessoires dont vous souhaitez équiper vos postes ?',type:'multi',o:['FRL (filtre régulateur lubrificateur)','Raccords rapides femelles','Enrouleurs muraux']},
-  {t:'Comment souhaitez-vous procéder pour l’étude du réseau ?',type:'text'},
-  {t:'Qui se chargera de la pose ?',type:'one',o:['Vous-même','Poseur déjà choisi','Airflux chiffre la pose'],other:'Précisez'},
-  {t:'Quand souhaitez-vous avoir une offre ?',type:'text',short:true},
-  {t:'Quels sont vos critères de sélection pour un fournisseur ?',type:'text'}
- ],
- memo:{
-  def:['La tuyauterie qui permet de desservir les postes de travail.'],
-  app:['Dans le cas d’un compresseur à vis ou de gros compresseurs à piston.','<b>Le marché :</b> industrie, atelier de production (postes de montage) et maintenance (garages, etc.).'],
-  lex:[['Ceinture','En périphérie des murs et en hauteur.'],
-       ['Descente','De la ceinture au poste de travail.'],
-       ['Piquage','Réalisation de la descente, qui se fait sur la ceinture.'],
-       ['Crosse ou canne d’évêque','Forme supérieure du piquage sur le point haut de la ceinture, seulement sur la tuyauterie acier et inox.'],
-       ['Raccordement','Collé dans le système PVC pression, serti dans le système aluminium.'],
-       ['FRL (filtre régulateur lubrificateur)','Nécessaire pour protéger l’outil des impuretés et de l’humidité produites par le compresseur.']],
-  pot:['Vente récente d’un gros compresseur.','En rénovation, quand on voit un réseau en tuyau souple.','Les clients qui consomment des tubes acier.'],
-  arg:['Le réseau en PVC ou en aluminium est bien plus propre et très facile à monter, sans soudure.','Il offre moins de frottement, donc moins de perte de charge.','80 % des entreprises font faire leur installation traditionnelle par un plombier, sans connaître les systèmes prêts à l’emploi.'],
-  conc:['Fabricants en direct','Revendeurs spécialisés air comprimé','Orexad'],
-  fab:['Girerd','Prevost','Transair (Legris)'],
-  rem:['Le réseau en aluminium est le produit à promouvoir.']
- }}
+ ]}
 ];
 
 const $=s=>document.querySelector(s);
@@ -270,9 +183,10 @@ let S={fiche:'gen',view:'q',data:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.data)S=Object.assign(S,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const D=()=>{const f=S.fiche;if(!S.data[f])S.data[f]={id:{date:new Date().toISOString().slice(0,10)},m:[],a:{}};return S.data[f]};
-const F=()=>FICHES.find(f=>f.id===S.fiche);
+const F=()=>FICHES.find(f=>f.id===S.fiche)||(S.fiche='gen',FICHES[0]);
 
 function renderTabs(){
+  if(FICHES.length<2){const t=$('#tabs');if(t)t.style.display='none';return}
   $('#tabs').innerHTML=FICHES.map(f=>`<button class="tab${f.id===S.fiche?' on':''}" data-f="${f.id}"><span class="n">${f.n}</span>${esc(f.title)}</button>`).join('');
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.fiche=b.dataset.f;save();render();scrollTo(0,0)});
 }
