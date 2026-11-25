@@ -113,6 +113,22 @@ main{max-width:760px}
 .view{display:none}.view.on{display:block}
 .objbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:10px;background:#fff7ec;border:1.5px dashed #f2a33a;color:#b05a00;border-radius:12px;padding:13px 16px;font-weight:700;font-size:14.5px;cursor:pointer}
 .objbtn:hover{background:#ffefd9}
+.qintro{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.qtop{display:flex;gap:10px;align-items:center}
+.qcnt{font-weight:700;font-size:13px;color:var(--red);background:#fdecec;border-radius:20px;padding:6px 12px}
+.qg{margin-top:14px;padding:16px 14px 10px}
+.qg h2{padding:0 10px}
+.qg h2{font-size:15px;margin:0 0 8px;letter-spacing:.2px}
+.qg ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.qi{display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:0;border-radius:10px;padding:9px 10px;font:inherit;font-size:14.5px;line-height:1.4;color:inherit;cursor:pointer;transition:background .15s}
+.qi:hover{background:rgba(0,0,0,.04)}
+.qb{flex:none;width:19px;height:19px;margin-top:1px;border:2px solid #c7ccd4;border-radius:6px;position:relative;transition:all .18s}
+.qi.on .qb{background:var(--red);border-color:var(--red)}
+.qi.on .qb::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.4px 2.4px 0;transform:rotate(45deg)}
+.qi.on>span:last-child{opacity:.5;text-decoration:line-through}
+.qnotes{width:100%;min-height:110px;resize:vertical;box-sizing:border-box}
+.qact{display:flex;justify-content:flex-end;margin-top:8px}
+.qmore{margin:16px 0 4px;font-size:14px}.qmore a{color:var(--red);font-weight:600;text-decoration:none}
 .backtr{display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
 </style>
 </head>
@@ -127,6 +143,7 @@ main{max-width:760px}
   <div class="vtabs">
   <button class="vtab on" data-v="trame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>Trame</button>
   <button class="vtab" data-v="objections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v4M12 14h.01"/></svg>Objections</button>
+  <button class="vtab" data-v="questions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.2a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 3.8"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>Questions</button>
 </div>
 </header>
 <main>
@@ -155,6 +172,7 @@ main{max-width:760px}
   
 
 </section>
+<section class="view" id="qv"><div class="intro qintro"><div><h1>Questions à poser</h1><p>Les questions générales pour découvrir le prospect pendant l’appel. Clique sur une question quand elle est posée.</p></div><div class="qtop"><span class="qcnt" id="qcnt"></span><button class="btn" id="qreset">Tout décocher</button></div></div><div class="card qg"><h2>Le contact</h2><ul><li><button class="qi" data-k="0"><span class="qb"></span><span>Êtes-vous la bonne personne pour parler de l’air comprimé et de la maintenance ?</span></button></li><li><button class="qi" data-k="1"><span class="qb"></span><span>Qui d’autre intervient dans les décisions (achat, direction, maintenance) ?</span></button></li><li><button class="qi" data-k="2"><span class="qb"></span><span>Quel est le meilleur moyen de vous joindre (ligne directe, e-mail) ?</span></button></li></ul></div><div class="card qg"><h2>L’installation actuelle</h2><ul><li><button class="qi" data-k="3"><span class="qb"></span><span>Utilisez-vous de l’air comprimé sur votre site ?</span></button></li><li><button class="qi" data-k="4"><span class="qb"></span><span>Combien de compresseurs avez-vous, et de quel type (piston, vis) ?</span></button></li><li><button class="qi" data-k="5"><span class="qb"></span><span>Quelle marque, et quel âge ont-ils à peu près ?</span></button></li><li><button class="qi" data-k="6"><span class="qb"></span><span>Avez-vous un sécheur, des filtres, une cuve ?</span></button></li><li><button class="qi" data-k="7"><span class="qb"></span><span>À quelle pression travaillez-vous ?</span></button></li></ul></div><div class="card qg"><h2>L’utilisation</h2><ul><li><button class="qi" data-k="8"><span class="qb"></span><span>À quoi sert l’air comprimé chez vous (outils, machines, peinture…) ?</span></button></li><li><button class="qi" data-k="9"><span class="qb"></span><span>Combien d’heures par jour tourne le compresseur ? Combien de jours par semaine ?</span></button></li><li><button class="qi" data-k="10"><span class="qb"></span><span>Si le compresseur tombe en panne, est-ce que la production s’arrête ?</span></button></li></ul></div><div class="card qg"><h2>L’entretien</h2><ul><li><button class="qi" data-k="11"><span class="qb"></span><span>Qui s’occupe de l’entretien aujourd’hui ?</span></button></li><li><button class="qi" data-k="12"><span class="qb"></span><span>Avez-vous un contrat de maintenance ? Jusqu’à quand ?</span></button></li><li><button class="qi" data-k="13"><span class="qb"></span><span>Quand a eu lieu la dernière visite ?</span></button></li><li><button class="qi" data-k="14"><span class="qb"></span><span>Avez-vous eu des pannes ou des fuites récemment ?</span></button></li></ul></div><div class="card qg"><h2>Les besoins et projets</h2><ul><li><button class="qi" data-k="15"><span class="qb"></span><span>Qu’est-ce qui vous gêne aujourd’hui (bruit, consommation, pannes, humidité) ?</span></button></li><li><button class="qi" data-k="16"><span class="qb"></span><span>Avez-vous un projet à venir (agrandissement, nouvelle machine, renouvellement) ?</span></button></li><li><button class="qi" data-k="17"><span class="qb"></span><span>Connaissez-vous le coût en électricité de votre air comprimé ?</span></button></li></ul></div><div class="card qg"><h2>La suite</h2><ul><li><button class="qi" data-k="18"><span class="qb"></span><span>Sous quel délai souhaiteriez-vous avancer ?</span></button></li><li><button class="qi" data-k="19"><span class="qb"></span><span>Avez-vous déjà un budget en tête ?</span></button></li><li><button class="qi" data-k="20"><span class="qb"></span><span>Seriez-vous d’accord pour qu’un technicien passe faire un état des lieux ?</span></button></li></ul></div><div class="card qg"><h2>Notes</h2><textarea class="inp qnotes" id="qnotes" placeholder="Ce que le prospect a répondu…"></textarea><div class="qact"><button class="btn" id="qcopy">Copier les notes</button></div></div><p class="qmore"><a href="../questions/">Fiches découverte détaillées (Air comprimé, Compresseur, Réseau d’air) →</a></p></section>
 <div class="conf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b style="color:var(--text)">Usage interne et confidentiel.</b> Ces outils ne doivent pas être divulgués en dehors d’Airflux.</div></div>
 </main>
 <div id="toast"></div>
@@ -175,8 +193,8 @@ async function copyText(t,msg){
 
 function showView(v,focus){
   document.querySelectorAll('.vtab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
-  $('#tv').classList.toggle('on',v==='trame');$('#ov').classList.toggle('on',v==='objections');
-  if(location.hash!=='#'+v)history.replaceState(null,'',v==='trame'?location.pathname:'#objections');
+  $('#tv').classList.toggle('on',v==='trame');$('#ov').classList.toggle('on',v==='objections');$('#qv').classList.toggle('on',v==='questions');
+  if(location.hash!=='#'+v)history.replaceState(null,'',v==='trame'?location.pathname:'#'+v);
   scrollTo(0,0);
   if(focus)setTimeout(()=>$('#q').focus(),60);
 }
@@ -263,8 +281,22 @@ $('#q').oninput=drawObj;
 drawObj();
 
 $('#toTrame').onclick=()=>showView('trame');
-addEventListener('hashchange',()=>showView(location.hash==='#objections'?'objections':'trame'));
-if(location.hash==='#objections')showView('objections');
+const _hv=()=>({'#objections':'objections','#questions':'questions'})[location.hash]||'trame';
+addEventListener('hashchange',()=>showView(_hv()));
+if(_hv()!=='trame')showView(_hv());
+(function(){
+  const K='airflux_trame_q_v1';let Q={c:[],n:''};
+  try{Q=Object.assign(Q,JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
+  const sv=()=>{try{localStorage.setItem(K,JSON.stringify(Q))}catch(e){}};
+  const it=[...document.querySelectorAll('.qi')];
+  const cnt=()=>{$('#qcnt').textContent=Q.c.length+' / '+it.length+' posées'};
+  it.forEach(b=>{const k=+b.dataset.k;b.classList.toggle('on',Q.c.includes(k));
+    b.onclick=()=>{const i=Q.c.indexOf(k);i<0?Q.c.push(k):Q.c.splice(i,1);b.classList.toggle('on',i<0);sv();cnt()}});
+  const nt=$('#qnotes');nt.value=Q.n||'';nt.oninput=()=>{Q.n=nt.value;sv()};
+  $('#qreset').onclick=()=>{Q.c=[];it.forEach(b=>b.classList.remove('on'));sv();cnt()};
+  $('#qcopy').onclick=async()=>{const b=$('#qcopy');try{await navigator.clipboard.writeText(nt.value);b.textContent='Copié ✓'}catch(e){nt.select();document.execCommand('copy');b.textContent='Copié ✓'}setTimeout(()=>b.textContent='Copier les notes',1500)};
+  cnt();
+})();
 </script>
 <script src="/airflux-hub/idle.js" defer></script><script src="/airflux-hub/reset.js" defer></script><script src="/airflux-hub/ui.js" defer></script></body>
 </html>
